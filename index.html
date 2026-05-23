@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ClipCash - Plataforma Completa</title>
     
-    <!-- CSP - Content Security Policy -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://www.gstatic.com https://*.firebaseio.com https://*.firebaseapp.com https://*.firebasestorage.app; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.google.com https://www.gstatic.com/firebasejs; style-src 'self' 'unsafe-inline'; media-src 'self' https://*.firebasestorage.app https://www.w3schools.com; img-src 'self' data: https://*.firebasestorage.app;">
-    
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -66,7 +63,6 @@
             user-select: none;
         }
         
-        /* ========== LOGIN ========== */
         .login-container {
             min-height: 100vh;
             display: flex;
@@ -126,20 +122,17 @@
         .timer { color: var(--text2); font-size: 12px; margin: 10px 0; }
         .timer span { color: var(--warning); font-weight: 700; }
         
-        /* ========== HEADER ========== */
         .header { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(10,10,10,0.98); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
         .logo { font-weight: 800; font-size: 18px; background: linear-gradient(135deg, var(--primary-light), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; }
         .header-right { display: flex; gap: 14px; align-items: center; margin-left: auto; }
         .header-btn { font-size: 20px; cursor: pointer; position: relative; }
         .badge { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 9px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
         
-        /* ========== PLATFORM TABS ========== */
         .platform-tabs { display: flex; gap: 6px; padding: 8px 12px; overflow-x: auto; background: var(--bg); border-bottom: 1px solid var(--border); scrollbar-width: none; position: sticky; top: 48px; z-index: 99; }
         .platform-tabs::-webkit-scrollbar { display: none; }
         .platform-tab { display: flex; align-items: center; gap: 5px; padding: 7px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; border: 1px solid var(--border); background: var(--card); transition: all 0.2s; }
         .platform-tab.active { background: var(--primary); color: white; border-color: var(--primary-light); }
         
-        /* ========== SIDEBAR ========== */
         .sidebar { position: fixed; top: 0; left: -300px; width: 280px; height: 100vh; background: var(--card); z-index: 200; transition: left 0.3s; overflow-y: auto; }
         .sidebar.open { left: 0; }
         .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 199; display: none; }
@@ -150,13 +143,11 @@
         .sidebar-item { padding: 10px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; font-size: 13px; transition: background 0.2s; }
         .sidebar-item:hover { background: var(--input); }
         
-        /* ========== BOTTOM NAV ========== */
         .bottom-nav { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; bottom: 0; width: 100%; max-width: 480px; background: rgba(10,10,10,0.98); backdrop-filter: blur(20px); padding: 6px 0 8px; border-top: 1px solid var(--border); z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 2px; color: var(--text2); font-size: 9px; cursor: pointer; border: none; background: transparent; }
         .nav-item.active { color: var(--primary-light); }
         .nav-icon { font-size: 20px; }
         
-        /* ========== FEED ========== */
         .feed { padding: 0 0 70px; min-height: 100vh; }
         .video-card { cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.2s; }
         .video-card:hover { background: var(--card); }
@@ -168,11 +159,9 @@
         .video-details h3 { font-size: 13px; font-weight: 500; margin-bottom: 4px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .video-details .meta { font-size: 11px; color: var(--text2); }
         
-        /* ========== PROMOTE ========== */
         .promote-card { background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 16px; padding: 20px; margin: 12px; border: 2px solid var(--primary); }
         .promote-input { width: 100%; padding: 12px; background: var(--input); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 14px; margin-bottom: 10px; outline: none; }
         
-        /* ========== CHAT ========== */
         .chat-panel { position: fixed; bottom: 70px; right: 10px; width: 300px; max-height: 400px; background: var(--card); border-radius: 12px; border: 1px solid var(--border); display: none; flex-direction: column; z-index: 150; overflow: hidden; }
         .chat-panel.open { display: flex; }
         .chat-header { padding: 10px 14px; background: var(--input); font-weight: 600; font-size: 13px; display: flex; justify-content: space-between; }
@@ -182,12 +171,10 @@
         .chat-input input { flex: 1; background: var(--input); border: 1px solid var(--border); border-radius: 20px; padding: 8px 14px; color: var(--text); font-size: 12px; outline: none; }
         .chat-input button { background: var(--primary); border: none; border-radius: 50%; width: 36px; height: 36px; color: white; font-size: 16px; cursor: pointer; }
         
-        /* ========== MODAL ========== */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 300; display: none; justify-content: center; align-items: center; padding: 20px; }
         .modal-overlay.open { display: flex; }
         .modal-box { background: var(--card); border-radius: 16px; padding: 24px; width: 100%; max-width: 380px; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; }
         
-        /* ========== ADMIN ========== */
         .admin-panel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.97); z-index: 500; display: none; flex-direction: column; }
         .admin-panel.open { display: flex; }
         .admin-header { padding: 20px; background: linear-gradient(135deg, #1a1a2e, #16213e); display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); }
@@ -210,7 +197,7 @@
 
     <script>
         // ==========================================
-        // PROTEÇÕES DE SEGURANÇA (MANTIDAS)
+        // PROTEÇÕES DE SEGURANÇA
         // ==========================================
         (function() {
             'use strict';
@@ -335,9 +322,6 @@
             return num.toLocaleString();
         }
         
-        // ==========================================
-        // FUNÇÃO DE SANITIZAÇÃO (NOVA - SEGURANÇA)
-        // ==========================================
         function sanitize(text) {
             if (!text) return '';
             const div = document.createElement('div');
@@ -345,17 +329,12 @@
             return div.innerHTML;
         }
         
-        // ==========================================
-        // VALIDAÇÃO DE UPLOAD (NOVA - SEGURANÇA)
-        // ==========================================
         function validateFile(file) {
             const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/webm'];
-            const maxSize = 100 * 1024 * 1024; // 100MB
-            
+            const maxSize = 100 * 1024 * 1024;
             if (!file) return { valid: false, error: 'Nenhum arquivo selecionado' };
             if (!allowedTypes.includes(file.type)) return { valid: false, error: 'Tipo de arquivo não permitido' };
             if (file.size > maxSize) return { valid: false, error: 'Arquivo muito grande (máx 100MB)' };
-            
             return { valid: true };
         }
         
@@ -375,7 +354,6 @@
         let homeClickTimer = null;
         const ADMIN_CLICKS = 15;
         let lastMessageTime = 0;
-        let sessionExpiry = null;
         
         // ==========================================
         // SISTEMA DE VERIFICAÇÃO
@@ -572,17 +550,6 @@
                 userPlan = userData.plan || 'free';
                 userStats = userData.stats || { videosPosted: 0, imagesPosted: 0, articlesPosted: 0, downloadsUsed: 0 };
                 
-                // Sessão com expiração (1 hora)
-                sessionExpiry = Date.now() + (60 * 60 * 1000);
-                setTimeout(() => {
-                    if (isLoggedIn) {
-                        auth.signOut();
-                        isLoggedIn = false;
-                        alert('⏰ Sessão expirada. Faça login novamente.');
-                        renderLoginScreen();
-                    }
-                }, 60 * 60 * 1000);
-                
                 alert(`✅ Bem-vindo, ${sanitize(userData.name)}!`);
                 renderMainApp();
             } catch (error) {
@@ -652,9 +619,6 @@
                     pendingRegistration = null;
                     isLoggedIn = true;
                     userPhoneNumber = pendingRegistration?.phone;
-                    
-                    // Sessão com expiração
-                    sessionExpiry = Date.now() + (60 * 60 * 1000);
                     
                     alert('✅ Conta criada com sucesso! Bem-vindo! 🎉');
                     renderMainApp();
@@ -814,15 +778,12 @@
         function handleMediaSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
-            
-            // Validação de upload segura
             const validation = validateFile(file);
             if (!validation.valid) {
                 alert('❌ ' + validation.error);
                 event.target.value = '';
                 return;
             }
-            
             selectedMediaFile = file;
         }
         
@@ -889,7 +850,6 @@
         }
         function sendChat() {
             const now = Date.now();
-            // Anti-spam: 3 segundos entre mensagens
             if (now - lastMessageTime < 3000) {
                 alert('⏳ Aguarde 3 segundos entre mensagens!');
                 return;
@@ -929,11 +889,9 @@
         
         async function verifyAdmin() {
             const p = document.getElementById('adminPassword')?.value;
-            // Senha verificada NO FIREBASE, não no código
             const s = await db.ref('config/adminPassword').once('value');
             const storedPassword = s.val();
             
-            // Se não existir senha no Firebase, criar padrão
             if (!storedPassword) {
                 await db.ref('config/adminPassword').set('clipcash2024');
                 if (p === 'clipcash2024') {
@@ -988,26 +946,16 @@
         }
         
         // ==========================================
-        // INIT
+        // INIT (CORRIGIDO - SEM sessionExpiry)
         // ==========================================
         async function initApp() {
-            const s = await db.ref('config/adminPassword').once('value');
-            if (!s.val()) await db.ref('config/adminPassword').set('clipcash2024');
+            try {
+                const s = await db.ref('config/adminPassword').once('value');
+                if (!s.val()) await db.ref('config/adminPassword').set('clipcash2024');
+            } catch(e) {}
             
-            auth.onAuthStateChanged(user => {
-                if (user && isLoggedIn) { 
-                    // Verificar expiração da sessão
-                    if (sessionExpiry && Date.now() > sessionExpiry) {
-                        auth.signOut();
-                        isLoggedIn = false;
-                        alert('⏰ Sessão expirada. Faça login novamente.');
-                        renderLoginScreen();
-                        return;
-                    }
-                    currentUser = user; 
-                }
-                else { renderLoginScreen(); }
-            });
+            // SEMPRE mostrar tela de login ao iniciar
+            renderLoginScreen();
         }
         
         document.addEventListener('click', e => {
