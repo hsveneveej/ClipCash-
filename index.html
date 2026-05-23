@@ -90,7 +90,6 @@
         .video-section { margin: 10px 0 20px; background: var(--card); border-radius: 16px; padding: 12px; border: 1px solid var(--border); }
         .video-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000; aspect-ratio: 16/9; }
         .video-container video { width: 100%; height: 100%; object-fit: cover; }
-        .loop-badge { position: absolute; top: 10px; right: 10px; background: rgba(108,92,231,0.8); color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; z-index: 5; }
         .video-caption { text-align: center; margin-top: 8px; font-size: 12px; color: var(--gold); font-weight: 600; }
         
         .login-box { background: var(--card); border-radius: 20px; padding: 30px 20px; border: 1px solid var(--border); }
@@ -453,7 +452,7 @@
         };
         
         // ==========================================
-        // TELA DE LOGIN
+        // TELA DE LOGIN (CORRIGIDA - BOTÕES FUNCIONAIS)
         // ==========================================
         function renderLoginScreen() {
             document.getElementById('app').innerHTML = `
@@ -462,7 +461,6 @@
                     <div class="login-subtitle">Assista vídeos e ganhe dinheiro</div>
                     <div class="video-section">
                         <div class="video-container">
-                            <span class="loop-badge">🔄 LOOP</span>
                             <video id="tutorialVideo" muted playsinline loop>
                                 <source src="${tutorialConfig.url}" type="video/mp4">
                             </video>
@@ -471,15 +469,15 @@
                     </div>
                     <div class="login-box">
                         <div class="login-tabs">
-                            <button class="login-tab active" onclick="switchLoginTab('login')">🔑 Entrar</button>
-                            <button class="login-tab" onclick="switchLoginTab('register')">✨ Criar Conta</button>
+                            <button class="login-tab active" id="tabLogin" onclick="switchLoginTab('login')">🔑 Entrar</button>
+                            <button class="login-tab" id="tabRegister" onclick="switchLoginTab('register')">✨ Criar Conta</button>
                         </div>
-                        <form id="loginForm" onsubmit="handleLogin(event)">
-                            <div class="input-group"><label>📱 Número de Telefone</label><div class="phone-group"><select><option value="+258">🇲🇿 +258</option><option value="+55">🇧🇷 +55</option><option value="+351">🇵🇹 +351</option><option value="+244">🇦🇴 +244</option></select><input type="tel" placeholder="84 000 0000" required></div></div>
-                            <div class="input-group"><label>🔐 Senha</label><input type="password" placeholder="Sua senha" required minlength="6"></div>
+                        <form id="loginForm" onsubmit="return handleLogin(event)">
+                            <div class="input-group"><label>📱 Número de Telefone</label><div class="phone-group"><select id="loginCountry"><option value="+258">🇲🇿 +258</option><option value="+55">🇧🇷 +55</option><option value="+351">🇵🇹 +351</option><option value="+244">🇦🇴 +244</option></select><input type="tel" id="loginPhone" placeholder="84 000 0000" required></div></div>
+                            <div class="input-group"><label>🔐 Senha</label><input type="password" id="loginPassword" placeholder="Sua senha" required minlength="6"></div>
                             <button type="submit" class="btn btn-primary">▶ Entrar</button>
                         </form>
-                        <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
+                        <form id="registerForm" class="hidden" onsubmit="return handleRegister(event)">
                             <div class="input-group"><label>👤 Nome Completo</label><input type="text" id="regName" placeholder="Seu nome completo" required></div>
                             <div class="input-group"><label>📱 Número de Telefone</label><div class="phone-group"><select id="regCountry"><option value="+258">🇲🇿 +258</option><option value="+55">🇧🇷 +55</option><option value="+351">🇵🇹 +351</option><option value="+244">🇦🇴 +244</option></select><input type="tel" id="regPhone" placeholder="84 000 0000" required></div></div>
                             <div class="input-group"><label>🔐 Criar Senha</label><input type="password" id="regPass1" placeholder="Crie uma senha forte" required minlength="6"></div>
@@ -509,27 +507,41 @@
         function switchLoginTab(tab) {
             document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
             if (tab === 'login') {
-                document.querySelector('.login-tab:first-child').classList.add('active');
+                document.getElementById('tabLogin').classList.add('active');
                 document.getElementById('loginForm').classList.remove('hidden');
                 document.getElementById('registerForm').classList.add('hidden');
             } else {
-                document.querySelector('.login-tab:last-child').classList.add('active');
+                document.getElementById('tabRegister').classList.add('active');
                 document.getElementById('loginForm').classList.add('hidden');
                 document.getElementById('registerForm').classList.remove('hidden');
             }
         }
         
+        // ==========================================
+        // HANDLE LOGIN (CORRIGIDO - USA IDs DIRETOS)
+        // ==========================================
         async function handleLogin(e) {
             e.preventDefault();
-            const countryCode = e.target.querySelector('select').value;
-            const phone = e.target.querySelector('input[type="tel"]').value.replace(/\D/g, '');
-            const password = e.target.querySelector('input[type="password"]').value;
-            if (!phone || !password) return alert('❌ Preencha todos os campos!');
+            e.stopPropagation();
+            
+            const countryCode = document.getElementById('loginCountry').value;
+            const phone = document.getElementById('loginPhone').value.replace(/\D/g, '');
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!phone || !password) {
+                alert('❌ Preencha todos os campos!');
+                return false;
+            }
+            
             const fullPhone = countryCode + phone;
             
             try {
                 const snapshot = await db.ref('users').orderByChild('phone').equalTo(fullPhone).once('value');
-                if (!snapshot.exists()) return alert('❌ Número não encontrado!');
+                
+                if (!snapshot.exists()) {
+                    alert('❌ Número não encontrado! Crie uma conta primeiro.');
+                    return false;
+                }
                 
                 let userData = null;
                 snapshot.forEach(child => { userData = child.val(); });
@@ -540,7 +552,10 @@
                 const hashArray = Array.from(new Uint8Array(hashBuffer));
                 const passwordHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
                 
-                if (userData.passwordHash !== passwordHash) return alert('❌ Senha incorreta!');
+                if (userData.passwordHash !== passwordHash) {
+                    alert('❌ Senha incorreta!');
+                    return false;
+                }
                 
                 const authResult = await auth.signInAnonymously();
                 currentUser = authResult.user;
@@ -550,38 +565,67 @@
                 userPlan = userData.plan || 'free';
                 userStats = userData.stats || { videosPosted: 0, imagesPosted: 0, articlesPosted: 0, downloadsUsed: 0 };
                 
-                alert(`✅ Bem-vindo, ${sanitize(userData.name)}!`);
+                alert('✅ Bem-vindo, ' + sanitize(userData.name) + '!');
                 renderMainApp();
+                return false;
+                
             } catch (error) {
-                alert('❌ Erro ao entrar.');
+                alert('❌ Erro ao entrar. Tente novamente.');
+                return false;
             }
         }
         
+        // ==========================================
+        // HANDLE REGISTER (CORRIGIDO - USA IDs DIRETOS)
+        // ==========================================
         async function handleRegister(e) {
             e.preventDefault();
+            e.stopPropagation();
+            
             const name = document.getElementById('regName').value.trim();
             const countryCode = document.getElementById('regCountry').value;
             const phone = document.getElementById('regPhone').value.replace(/\D/g, '');
             const pass1 = document.getElementById('regPass1').value;
             const pass2 = document.getElementById('regPass2').value;
             
-            if (!name || !phone || !pass1 || !pass2) return alert('❌ Preencha todos os campos!');
-            if (pass1 !== pass2) return alert('❌ As senhas não coincidem!');
-            if (pass1.length < 6) return alert('❌ Senha muito curta!');
+            if (!name || !phone || !pass1 || !pass2) {
+                alert('❌ Preencha todos os campos!');
+                return false;
+            }
+            if (pass1 !== pass2) {
+                alert('❌ As senhas não coincidem!');
+                return false;
+            }
+            if (pass1.length < 6) {
+                alert('❌ Senha muito curta! Mínimo 6 caracteres.');
+                return false;
+            }
             
             const fullPhone = countryCode + phone;
-            const snap = await db.ref('users').orderByChild('phone').equalTo(fullPhone).once('value');
-            if (snap.exists()) return alert('❌ Número já registado!');
             
-            const encoder = new TextEncoder();
-            const data = encoder.encode(pass1);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const passwordHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            
-            pendingRegistration = { name: sanitize(name), phone: fullPhone, passwordHash };
-            await verifier.sendCode(fullPhone);
-            showCodeInput();
+            try {
+                const snap = await db.ref('users').orderByChild('phone').equalTo(fullPhone).once('value');
+                if (snap.exists()) {
+                    alert('❌ Este número já está registado!');
+                    return false;
+                }
+                
+                const encoder = new TextEncoder();
+                const data = encoder.encode(pass1);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const passwordHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                
+                pendingRegistration = { name: sanitize(name), phone: fullPhone, passwordHash };
+                
+                await verifier.sendCode(fullPhone);
+                showCodeInput();
+                return false;
+                
+            } catch (error) {
+                alert('❌ Erro ao registar. Tente novamente.');
+                return false;
+            }
         }
         
         function showCodeInput() {
@@ -946,7 +990,7 @@
         }
         
         // ==========================================
-        // INIT (CORRIGIDO - SEM sessionExpiry)
+        // INIT
         // ==========================================
         async function initApp() {
             try {
@@ -954,7 +998,6 @@
                 if (!s.val()) await db.ref('config/adminPassword').set('clipcash2024');
             } catch(e) {}
             
-            // SEMPRE mostrar tela de login ao iniciar
             renderLoginScreen();
         }
         
