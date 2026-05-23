@@ -3,160 +3,624 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ClipCash - Plataforma Completa</title>
+    <title>ClipCash</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
     
     <style>
-        :root {
-            --bg: #0a0a0a; --card: #141414; --input: #1e1e1e;
-            --primary: #6c5ce7; --primary-light: #a29bfe; --success: #00b894;
-            --danger: #ff4757; --warning: #fdcb6e; --text: #ffffff;
-            --text2: #b2bec3; --border: #2d2d2d; --gold: #ffd700; --placard: #e63946;
-        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            background: var(--bg); min-height: 100vh; display: flex;
-            justify-content: center; align-items: center;
-            font-family: 'Inter', system-ui, sans-serif; color: var(--text);
-            -webkit-tap-highlight-color: transparent;
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #0a0a0a;
+            color: white;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
         }
-        .app { width: 100%; max-width: 480px; min-height: 100vh; background: var(--bg); position: relative; overflow-x: hidden; }
-        .secure-watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) rotate(-30deg); font-size: 60px; color: rgba(255,255,255,0.008); pointer-events: none; z-index: 9999; white-space: nowrap; letter-spacing: 20px; user-select: none; }
         
-        /* PLACARD BAR */
-        .placard-bar { display: flex; gap: 8px; padding: 8px 12px; background: linear-gradient(135deg,#1a0a0a,#2d0a0a); border-bottom: 2px solid var(--placard); position: sticky; top: 0; z-index: 30; }
-        .placard-btn { flex: 1; padding: 10px 8px; border-radius: 8px; border: 2px solid var(--placard); background: rgba(230,57,70,0.1); color: #fff; font-size: 10px; font-weight: 700; cursor: pointer; text-align: center; text-decoration: none; transition: all 0.3s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .placard-btn:hover { background: var(--placard); }
-        .placard-btn.whatsapp { background: #25d366; border-color: #25d366; color: #000; }
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            background: #0a0a0a;
+            position: relative;
+        }
         
-        /* LOGIN */
-        .login-container { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; background: linear-gradient(180deg,#0a0a0a 0%,#1a1a2e 100%); text-align: center; }
-        .login-logo { font-size: 42px; font-weight: 900; margin-bottom: 5px; background: linear-gradient(135deg,var(--primary-light),var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: pulse 2s infinite; }
-        .login-subtitle { color: var(--text2); font-size: 14px; margin-bottom: 15px; }
-        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
-        .video-section { width: 100%; margin: 10px 0 20px; background: var(--card); border-radius: 16px; padding: 10px; border: 1px solid var(--border); }
-        .video-container { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000; aspect-ratio: 16/9; }
-        .video-container video { width: 100%; height: 100%; object-fit: cover; }
-        .video-caption { text-align: center; margin-top: 8px; font-size: 11px; color: var(--gold); font-weight: 600; }
-        .google-btn { width: 100%; max-width: 300px; padding: 15px 20px; border-radius: 50px; border: 2px solid #4285f4; background: #fff; color: #333; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; box-shadow: 0 8px 25px rgba(66,133,244,0.3); }
-        .google-btn:hover { transform: translateY(-2px); }
-        .google-icon { width: 22px; height: 22px; background: conic-gradient(#4285f4 0% 25%,#34a853 25% 50%,#fbbc05 50% 75%,#ea4335 75% 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; font-weight: 900; }
-        .login-footer { margin-top: 30px; color: var(--text2); font-size: 11px; }
+        /* Login Screen - Mostrada imediatamente */
+        .login-screen {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(180deg, #0a0a0a, #1a1a2e);
+            text-align: center;
+        }
         
-        /* HEADER */
-        .header { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(10,10,10,0.98); backdrop-filter: blur(20px); position: sticky; top: 50px; z-index: 20; border-bottom: 1px solid var(--border); }
-        .logo { font-weight: 800; font-size: 18px; background: linear-gradient(135deg,var(--primary-light),var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; }
-        .header-right { display: flex; gap: 14px; align-items: center; margin-left: auto; }
-        .header-btn { font-size: 20px; cursor: pointer; position: relative; }
-        .badge { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 9px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-        .user-avatar { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; object-fit: cover; border: 2px solid var(--primary); }
+        .login-logo {
+            font-size: 40px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            background: linear-gradient(135deg, #a29bfe, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
         
-        /* PLATFORM TABS */
-        .platform-tabs { display: flex; gap: 6px; padding: 8px 12px; overflow-x: auto; background: var(--bg); border-bottom: 1px solid var(--border); scrollbar-width: none; position: sticky; top: 96px; z-index: 19; }
-        .platform-tabs::-webkit-scrollbar { display: none; }
-        .platform-tab { display: flex; align-items: center; gap: 5px; padding: 7px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; border: 1px solid var(--border); background: var(--card); transition: all 0.2s; }
-        .platform-tab.active { background: var(--primary); color: white; border-color: var(--primary-light); }
+        .login-subtitle {
+            color: #b2bec3;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
         
-        /* SIDEBAR */
-        .sidebar { position: fixed; top: 0; left: -300px; width: 280px; height: 100vh; background: var(--card); z-index: 200; transition: left 0.3s; overflow-y: auto; }
+        .video-box {
+            background: #141414;
+            border-radius: 16px;
+            padding: 10px;
+            margin: 10px 0 20px;
+            border: 1px solid #2d2d2d;
+            width: 100%;
+        }
+        
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            aspect-ratio: 16/9;
+        }
+        
+        .video-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .video-caption {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 11px;
+            color: #ffd700;
+            font-weight: 600;
+        }
+        
+        .google-btn {
+            width: 100%;
+            max-width: 300px;
+            padding: 14px;
+            border-radius: 50px;
+            border: 2px solid #4285f4;
+            background: white;
+            color: #333;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: 0.2s;
+        }
+        
+        .google-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .login-footer {
+            margin-top: 30px;
+            color: #b2bec3;
+            font-size: 11px;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            background: #0a0a0a;
+            border-bottom: 1px solid #2d2d2d;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+        
+        .logo-text {
+            font-weight: bold;
+            font-size: 18px;
+            background: linear-gradient(135deg, #a29bfe, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+        }
+        
+        .header-icons {
+            display: flex;
+            gap: 15px;
+            margin-left: auto;
+            align-items: center;
+        }
+        
+        .icon-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #6c5ce7;
+            object-fit: cover;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            padding: 8px 12px;
+            overflow-x: auto;
+            background: #0a0a0a;
+            border-bottom: 1px solid #2d2d2d;
+            position: sticky;
+            top: 53px;
+            z-index: 19;
+        }
+        
+        .tabs::-webkit-scrollbar { display: none; }
+        
+        .tab {
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            border: 1px solid #2d2d2d;
+            background: #141414;
+            color: white;
+        }
+        
+        .tab.active {
+            background: #6c5ce7;
+            border-color: #a29bfe;
+        }
+        
+        /* Content */
+        .content {
+            padding: 10px 0 70px;
+            min-height: 100vh;
+        }
+        
+        .video-item {
+            cursor: pointer;
+            border-bottom: 1px solid #2d2d2d;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .video-thumb {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #141414;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            position: relative;
+        }
+        
+        .video-info {
+            display: flex;
+            padding: 10px 15px;
+            gap: 10px;
+        }
+        
+        .channel-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        
+        .video-text h3 {
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+        
+        .video-text span {
+            font-size: 11px;
+            color: #b2bec3;
+        }
+        
+        /* Bottom Nav */
+        .bottom-nav {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 480px;
+            background: #0a0a0a;
+            padding: 8px 0 10px;
+            border-top: 1px solid #2d2d2d;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            color: #b2bec3;
+            font-size: 9px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        
+        .nav-item.active {
+            color: #a29bfe;
+        }
+        
+        .nav-icon {
+            font-size: 20px;
+        }
+        
+        /* Cards */
+        .card {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 12px;
+            border: 2px solid #6c5ce7;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            background: #1e1e1e;
+            border: 1px solid #2d2d2d;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            margin-bottom: 10px;
+            outline: none;
+            font-family: Arial, sans-serif;
+        }
+        
+        .input-field:focus {
+            border-color: #6c5ce7;
+        }
+        
+        select.input-field {
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-primary { background: #6c5ce7; color: white; }
+        .btn-success { background: #00b894; color: white; }
+        .btn-premium { background: linear-gradient(135deg, #ffd700, #ff6b6b); color: black; font-weight: bold; }
+        .btn-outline { background: transparent; border: 1px solid #6c5ce7; color: #6c5ce7; }
+        .btn-sm { width: auto; padding: 7px 16px; font-size: 11px; display: inline-block; }
+        
+        /* Plan Card */
+        .plan-card {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 12px;
+            border: 2px solid #2d2d2d;
+            text-align: center;
+        }
+        
+        .plan-card.premium {
+            border-color: #ffd700;
+        }
+        
+        .plan-price {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ffd700;
+            margin: 10px 0;
+        }
+        
+        .plan-features {
+            text-align: left;
+            margin: 15px 0;
+            list-style: none;
+        }
+        
+        .plan-features li {
+            padding: 6px 0;
+            font-size: 12px;
+            border-bottom: 1px solid #2d2d2d;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background: #141414;
+            z-index: 200;
+            transition: left 0.3s;
+            overflow-y: auto;
+        }
+        
         .sidebar.open { left: 0; }
-        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 199; display: none; }
+        
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 199;
+            display: none;
+        }
+        
         .sidebar-overlay.open { display: block; }
-        .sidebar-header { padding: 20px 16px; background: linear-gradient(135deg,#1a1a2e,#16213e); display: flex; align-items: center; gap: 12px; }
-        .sidebar-section { padding: 8px 0; border-bottom: 1px solid var(--border); }
-        .sidebar-section h4 { padding: 8px 16px; font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
-        .sidebar-item { padding: 10px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; font-size: 13px; transition: background 0.2s; }
-        .sidebar-item:hover { background: var(--input); }
         
-        /* BOTTOM NAV */
-        .bottom-nav { display: grid; grid-template-columns: repeat(5,1fr); position: fixed; bottom: 0; width: 100%; max-width: 480px; background: rgba(10,10,10,0.98); backdrop-filter: blur(20px); padding: 6px 0 8px; border-top: 1px solid var(--border); z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 2px; color: var(--text2); font-size: 9px; cursor: pointer; border: none; background: transparent; }
-        .nav-item.active { color: var(--primary-light); }
-        .nav-icon { font-size: 20px; }
+        .sidebar-header {
+            padding: 20px 16px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
         
-        /* FEED */
-        .feed { padding: 0 0 70px; min-height: 100vh; }
-        .video-card { cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.2s; }
-        .video-card:hover { background: var(--card); }
-        .video-thumb { width: 100%; aspect-ratio: 16/9; background: var(--card); display: flex; align-items: center; justify-content: center; font-size: 40px; position: relative; overflow: hidden; }
-        .video-duration { position: absolute; bottom: 6px; right: 6px; background: rgba(0,0,0,0.9); padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; }
-        .video-info { display: flex; padding: 10px 14px; gap: 10px; }
-        .channel-avatar { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
-        .video-details { flex: 1; min-width: 0; }
-        .video-details h3 { font-size: 13px; font-weight: 500; margin-bottom: 4px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .video-details .meta { font-size: 11px; color: var(--text2); }
-        .verified-badge { color: var(--primary-light); font-weight: 700; }
+        .sidebar-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 1px solid #2d2d2d;
+        }
         
-        /* PROMOTE */
-        .promote-card { background: linear-gradient(135deg,#1a1a2e,#16213e); border-radius: 16px; padding: 20px; margin: 12px; border: 2px solid var(--primary); }
-        .promote-input { width: 100%; padding: 12px; background: var(--input); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 14px; margin-bottom: 10px; outline: none; }
-        .promote-input:focus { border-color: var(--primary); }
+        .sidebar-item:active { background: #1e1e1e; }
         
-        /* PLAN CARDS */
-        .plan-card { background: linear-gradient(135deg,#1a1a2e,#16213e); border-radius: 16px; padding: 20px; margin: 12px; border: 2px solid var(--border); text-align: center; }
-        .plan-card.premium { border-color: var(--gold); box-shadow: 0 0 30px rgba(255,215,0,0.3); }
-        .plan-price { font-size: 32px; font-weight: 900; color: var(--gold); margin: 10px 0; }
-        .plan-features { text-align: left; margin: 15px 0; padding: 0; list-style: none; }
-        .plan-features li { padding: 6px 0; font-size: 12px; border-bottom: 1px solid var(--border); }
-        .plan-features li::before { content: '✅ '; }
-        .usage-bar { width: 100%; height: 8px; background: var(--input); border-radius: 4px; margin: 10px 0; overflow: hidden; }
-        .usage-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.5s; }
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 300;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
         
-        /* CREATE POST */
-        .create-post { background: var(--card); border-radius: 12px; margin: 8px 12px; padding: 14px; border: 1px solid var(--border); }
-        .create-post textarea { width: 100%; background: var(--input); border: 1px solid var(--border); border-radius: 12px; padding: 12px; color: var(--text); font-size: 13px; resize: vertical; min-height: 80px; font-family: inherit; outline: none; }
-        .create-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-        .create-btn { padding: 8px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--input); color: var(--text); font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
-        .create-btn:hover { background: var(--primary); border-color: var(--primary); }
-        .upload-progress { width: 100%; height: 4px; background: var(--input); border-radius: 2px; margin-top: 10px; overflow: hidden; display: none; }
-        .upload-progress .bar { height: 100%; background: var(--primary); transition: width 0.3s; }
+        .modal.open { display: flex; }
         
-        /* CHAT */
-        .chat-panel { position: fixed; bottom: 70px; right: 10px; width: 300px; max-height: 400px; background: var(--card); border-radius: 12px; border: 1px solid var(--border); display: none; flex-direction: column; z-index: 150; overflow: hidden; }
-        .chat-panel.open { display: flex; }
-        .chat-header { padding: 10px 14px; background: var(--input); font-weight: 600; font-size: 13px; display: flex; justify-content: space-between; }
-        .chat-body { flex: 1; overflow-y: auto; padding: 10px; font-size: 12px; max-height: 280px; background: var(--bg); }
-        .chat-body div { margin-bottom: 6px; padding: 8px 12px; background: var(--input); border-radius: 16px; font-size: 12px; }
-        .chat-input { display: flex; padding: 8px; gap: 6px; background: var(--card); border-top: 1px solid var(--border); }
-        .chat-input input { flex: 1; background: var(--input); border: 1px solid var(--border); border-radius: 20px; padding: 8px 14px; color: var(--text); font-size: 12px; outline: none; }
-        .chat-input button { background: var(--primary); border: none; border-radius: 50%; width: 36px; height: 36px; color: white; font-size: 16px; cursor: pointer; }
+        .modal-box {
+            background: #141414;
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 380px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid #2d2d2d;
+        }
         
-        /* MODAL & ADMIN */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 300; display: none; justify-content: center; align-items: center; padding: 20px; }
-        .modal-overlay.open { display: flex; }
-        .modal-box { background: var(--card); border-radius: 16px; padding: 24px; width: 100%; max-width: 380px; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; }
-        .admin-panel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.97); z-index: 500; display: none; flex-direction: column; }
+        /* Admin */
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            z-index: 500;
+            display: none;
+            flex-direction: column;
+        }
+        
         .admin-panel.open { display: flex; }
-        .admin-header { padding: 20px; background: linear-gradient(135deg,#1a1a2e,#16213e); display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); }
-        .admin-close { font-size: 24px; cursor: pointer; width: 36px; height: 36px; border-radius: 50%; background: var(--danger); display: flex; align-items: center; justify-content: center; border: none; color: white; }
-        .admin-content { flex: 1; overflow-y: auto; padding: 16px; }
-        .admin-card { background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); cursor: pointer; }
-        .admin-card:hover { border-color: var(--primary); }
-        .admin-lock { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 600; display: none; justify-content: center; align-items: center; }
+        
+        .admin-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #6c5ce7;
+        }
+        
+        .admin-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .admin-card {
+            background: #141414;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #2d2d2d;
+            cursor: pointer;
+        }
+        
+        .admin-card:active { border-color: #6c5ce7; }
+        
+        .admin-lock {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.98);
+            z-index: 600;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        
         .admin-lock.open { display: flex; }
         
-        .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-premium { background: linear-gradient(135deg,#ffd700,#ff6b6b); color: #000; font-weight: 800; }
-        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
-        .btn-sm { width: auto; padding: 7px 16px; font-size: 11px; border-radius: 8px; }
+        /* Chat */
+        .chat-panel {
+            position: fixed;
+            bottom: 70px;
+            right: 10px;
+            width: 300px;
+            max-height: 400px;
+            background: #141414;
+            border-radius: 12px;
+            border: 1px solid #2d2d2d;
+            display: none;
+            flex-direction: column;
+            z-index: 150;
+            overflow: hidden;
+        }
+        
+        .chat-panel.open { display: flex; }
+        
+        .chat-header {
+            padding: 10px 14px;
+            background: #1e1e1e;
+            font-weight: bold;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            max-height: 280px;
+            background: #0a0a0a;
+        }
+        
+        .chat-messages div {
+            margin-bottom: 6px;
+            padding: 8px 12px;
+            background: #1e1e1e;
+            border-radius: 16px;
+            font-size: 12px;
+        }
+        
+        .chat-input-area {
+            display: flex;
+            padding: 8px;
+            gap: 6px;
+            background: #141414;
+            border-top: 1px solid #2d2d2d;
+        }
+        
+        .chat-input-area input {
+            flex: 1;
+            background: #1e1e1e;
+            border: 1px solid #2d2d2d;
+            border-radius: 20px;
+            padding: 8px 14px;
+            color: white;
+            font-size: 12px;
+            outline: none;
+        }
+        
+        .chat-input-area button {
+            background: #6c5ce7;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
         .hidden { display: none !important; }
-        ::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
     </style>
 </head>
 <body>
-    <div class="app" id="app"><div class="secure-watermark">CLIPCASH SECURE</div></div>
+    <!-- App Container -->
+    <div class="app-container" id="app"></div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-box" id="modalBox"></div>
+    </div>
+    
+    <!-- Chat -->
+    <div class="chat-panel" id="chatPanel">
+        <div class="chat-header">
+            <span>💬 Chat</span>
+            <span onclick="toggleChat()" style="cursor:pointer;">✕</span>
+        </div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Mensagem..." onkeypress="if(event.key==='Enter')sendMessage()">
+            <button onclick="sendMessage()">▶</button>
+        </div>
+    </div>
+    
+    <!-- Admin Lock -->
+    <div class="admin-lock" id="adminLock">
+        <div style="background:#141414;border-radius:16px;padding:30px;text-align:center;border:2px solid #6c5ce7;">
+            <h2>🔐 Admin</h2>
+            <input type="password" id="adminPass" class="input-field" style="text-align:center;font-size:16px;letter-spacing:5px;margin:15px 0;" placeholder="Senha">
+            <button class="btn btn-primary" onclick="verifyAdmin()">Acessar</button>
+        </div>
+    </div>
+    
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <h2>🔐 Painel Admin</h2>
+            <button onclick="closeAdmin()" style="background:#ff4757;border:none;color:white;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;">✕</button>
+        </div>
+        <div class="admin-content" id="adminContent"></div>
+    </div>
 
     <script>
-        // ==========================================
-        // FIREBASE CONFIG
-        // ==========================================
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyDH-VISUVxdjtdpqC0CqsmYmTg76H5meaQ",
             authDomain: "clipcash-120b6.firebaseapp.com",
@@ -166,335 +630,793 @@
             messagingSenderId: "1061922736430",
             appId: "1:1061922736430:web:d099bb4bf79db1f9e652bf"
         };
+        
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
         const auth = firebase.auth();
+        const db = firebase.database();
         const storage = firebase.storage();
-
-        // ==========================================
-        // 40+ PLATAFORMAS
-        // ==========================================
+        
+        // Set persistence
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
+        
+        // Platforms
         const PLATFORMS = {
-            youtube:{name:'YouTube',icon:'▶️',color:'#ff0000',price:500},tiktok:{name:'TikTok',icon:'🎵',color:'#ff0050',price:400},
-            instagram:{name:'Instagram',icon:'📷',color:'#e4405f',price:450},facebook:{name:'Facebook',icon:'📘',color:'#1877f2',price:350},
-            linkedin:{name:'LinkedIn',icon:'💼',color:'#0a66c2',price:600},twitter:{name:'Twitter/X',icon:'🐦',color:'#1da1f2',price:400},
-            snapchat:{name:'Snapchat',icon:'👻',color:'#fffc00',price:350},pinterest:{name:'Pinterest',icon:'📌',color:'#e60023',price:300},
-            reddit:{name:'Reddit',icon:'🤖',color:'#ff4500',price:250},discord:{name:'Discord',icon:'🎮',color:'#5865f2',price:300},
-            twitch:{name:'Twitch',icon:'🎥',color:'#9146ff',price:500},telegram:{name:'Telegram',icon:'✈️',color:'#0088cc',price:300},
-            whatsapp:{name:'WhatsApp',icon:'💬',color:'#25d366',price:200},signal:{name:'Signal',icon:'🔒',color:'#3a76f0',price:200},
-            wechat:{name:'WeChat',icon:'🟢',color:'#07c160',price:400},line:{name:'LINE',icon:'📱',color:'#00c300',price:350},
-            vimeo:{name:'Vimeo',icon:'🎬',color:'#1ab7ea',price:350},dailymotion:{name:'Dailymotion',icon:'▶️',color:'#00aaff',price:250},
-            rumble:{name:'Rumble',icon:'🥊',color:'#85c742',price:300},odysee:{name:'Odysee',icon:'👁️',color:'#e56b2d',price:250},
-            kick:{name:'Kick',icon:'🦵',color:'#53fc18',price:400},trovo:{name:'Trovo',icon:'🎮',color:'#3dbb7e',price:300},
-            spotify:{name:'Spotify',icon:'🎧',color:'#1db954',price:500},soundcloud:{name:'SoundCloud',icon:'☁️',color:'#ff7700',price:350},
-            audiomack:{name:'Audiomack',icon:'🎵',color:'#ffa200',price:250},deezer:{name:'Deezer',icon:'🎶',color:'#feaa2d',price:300},
-            tidal:{name:'TIDAL',icon:'🌊',color:'#000000',price:400},medium:{name:'Medium',icon:'📝',color:'#000000',price:300},
-            substack:{name:'Substack',icon:'📧',color:'#ff6719',price:350},patreon:{name:'Patreon',icon:'❤️',color:'#ff424d',price:400},
-            onlyfans:{name:'OnlyFans',icon:'🔞',color:'#008ccf',price:600},gumroad:{name:'Gumroad',icon:'🛒',color:'#ff90e8',price:300},
-            quora:{name:'Quora',icon:'❓',color:'#b92b27',price:300},threads:{name:'Threads',icon:'🧵',color:'#000000',price:450},
-            bluesky:{name:'Bluesky',icon:'🦋',color:'#0085ff',price:350},mastodon:{name:'Mastodon',icon:'🐘',color:'#6364ff',price:250},
-            lemon8:{name:'Lemon8',icon:'🍋',color:'#ffd700',price:400},likee:{name:'Likee',icon:'✨',color:'#ff2e6e',price:350},
-            kwai:{name:'Kwai',icon:'🎬',color:'#ff7700',price:300},bigo_live:{name:'Bigo Live',icon:'📡',color:'#00bfff',price:450},
-            tango:{name:'Tango',icon:'💃',color:'#ff6b35',price:300}
+            youtube: {name:'YouTube',icon:'▶️',color:'#ff0000'},
+            tiktok: {name:'TikTok',icon:'🎵',color:'#ff0050'},
+            instagram: {name:'Instagram',icon:'📷',color:'#e4405f'},
+            facebook: {name:'Facebook',icon:'📘',color:'#1877f2'},
+            twitter: {name:'Twitter/X',icon:'🐦',color:'#1da1f2'},
+            linkedin: {name:'LinkedIn',icon:'💼',color:'#0a66c2'},
+            snapchat: {name:'Snapchat',icon:'👻',color:'#fffc00'},
+            pinterest: {name:'Pinterest',icon:'📌',color:'#e60023'},
+            reddit: {name:'Reddit',icon:'🤖',color:'#ff4500'},
+            discord: {name:'Discord',icon:'🎮',color:'#5865f2'},
+            twitch: {name:'Twitch',icon:'🎥',color:'#9146ff'},
+            telegram: {name:'Telegram',icon:'✈️',color:'#0088cc'},
+            whatsapp: {name:'WhatsApp',icon:'💬',color:'#25d366'},
+            spotify: {name:'Spotify',icon:'🎧',color:'#1db954'},
+            onlyfans: {name:'OnlyFans',icon:'🔞',color:'#008ccf'}
         };
-
-        // ==========================================
-        // PLANOS
-        // ==========================================
+        
         const PLANS = {
-            free:{name:'Grátis',icon:'🆓',price:0,videos:5,images:30,articles:40,downloads:3,promotion:false,offlineView:false},
-            monthly:{name:'Premium Mensal',icon:'⭐',price:100,period:'mês',videos:50,images:200,articles:200,downloads:50,promotion:true,offlineView:true},
-            yearly:{name:'Premium Anual',icon:'👑',price:1000,period:'ano',videos:500,images:2000,articles:2000,downloads:500,promotion:true,offlineView:true}
+            free: {name:'Grátis',price:0,videos:5,images:30,articles:40},
+            monthly: {name:'Premium Mensal',price:100,videos:50,images:200,articles:200},
+            yearly: {name:'Premium Anual',price:1000,videos:500,images:2000,articles:2000}
         };
-
-        // ==========================================
-        // DADOS DE VÍDEOS
-        // ==========================================
-        const videoDatabase = {};
-        Object.keys(PLATFORMS).forEach(platform => {
-            videoDatabase[platform] = [];
-            for (let i = 0; i < 500; i++) {
-                videoDatabase[platform].push({
-                    id: i, title: `Como Crescer no ${PLATFORMS[platform].name} em 2024`,
-                    channel: ['Creator Pro','Digital Master','Viral Expert','Growth Hacker','Social Guru'][Math.floor(Math.random()*5)],
-                    views: Math.floor(Math.random()*5000000)+50000,
-                    timeAgo: `${Math.floor(Math.random()*30)+1} dias atrás`,
-                    duration: `${Math.floor(Math.random()*20)+1}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}`,
-                    platform: platform
-                });
-            }
-        });
-
-        function formatNumber(num) { if(num>=1000000) return (num/1000000).toFixed(1)+'M'; if(num>=1000) return (num/1000).toFixed(1)+'K'; return num.toLocaleString(); }
-        function sanitize(text) { if(!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
-        function validateFile(file) { const allowedTypes = ['image/jpeg','image/png','image/gif','image/webp','video/mp4','video/webm']; const maxSize = 100*1024*1024; if(!file) return {valid:false,error:'Nenhum arquivo'}; if(!allowedTypes.includes(file.type)) return {valid:false,error:'Tipo não permitido'}; if(file.size>maxSize) return {valid:false,error:'Muito grande (máx 100MB)'}; return {valid:true}; }
-
-        // ==========================================
-        // VARIÁVEIS
-        // ==========================================
-        let currentUser = null, currentPlatform = 'youtube', currentTab = 'home', isLoggedIn = false;
-        let userPlan = 'free', userStats = {videosPosted:0,imagesPosted:0,articlesPosted:0,downloadsUsed:0};
-        let isAdmin = false, homeClickCount = 0, homeClickTimer = null, lastMessageTime = 0;
-        const ADMIN_CLICKS = 15;
-        let tutorialConfig = { url: "https://www.w3schools.com/html/mov_bbb.mp4", loopDuration: 30, caption: "😂 \"Ganhar dinheiro aqui é mais fácil que dançar!\"" };
-        let placardLinks = { deposit: "https://placard.co.mz/register?ref=SEU_LINK", whatsapp: "https://chat.whatsapp.com/SEU_GRUPO" };
-
-        async function loadConfig() {
-            try {
-                const tutSnap = await db.ref('config/tutorialVideo').once('value');
-                if(tutSnap.val()) tutorialConfig = tutSnap.val();
-                const placSnap = await db.ref('config/placardLinks').once('value');
-                if(placSnap.val()) placardLinks = placSnap.val();
-            } catch(e) {}
+        
+        let currentUser = null;
+        let userPlan = 'free';
+        let userStats = {videosPosted:0,imagesPosted:0,articlesPosted:0};
+        let currentPlatform = 'youtube';
+        let currentTab = 'home';
+        let isAdmin = false;
+        let clickCount = 0;
+        let clickTimer = null;
+        let lastMsgTime = 0;
+        
+        let tutorialUrl = "https://www.w3schools.com/html/mov_bbb.mp4";
+        let placardDeposit = "#";
+        let placardWhatsapp = "#";
+        
+        function safe(s) {
+            if(!s) return '';
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
         }
-
-        // ==========================================
-        // TELA DE LOGIN
-        // ==========================================
-        function renderLoginScreen() {
+        
+        function formatNum(n) {
+            if(!n) return '0';
+            if(n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+            if(n >= 1000) return (n/1000).toFixed(1) + 'K';
+            return n.toLocaleString();
+        }
+        
+        // ==================== LOGIN - MOSTRADO IMEDIATAMENTE ====================
+        function renderLogin() {
             document.getElementById('app').innerHTML = `
-                <div class="placard-bar">
-                    <a href="${placardLinks.deposit}" target="_blank" class="placard-btn" onclick="trackClick('deposit')">💰 CLICA E GANHA NA PLACARD</a>
-                    <a href="${placardLinks.whatsapp}" target="_blank" class="placard-btn whatsapp" onclick="trackClick('whatsapp')">📱 GRUPO WHATSAPP</a>
-                </div>
-                <div class="login-container">
+                <div class="login-screen">
                     <div class="login-logo">💎 ClipCash</div>
-                    <div class="login-subtitle">Assista vídeos e ganhe dinheiro</div>
-                    <div class="video-section"><div class="video-container"><video id="tutorialVideo" muted playsinline loop><source src="${tutorialConfig.url}" type="video/mp4"></video></div><p class="video-caption">${sanitize(tutorialConfig.caption)}</p></div>
-                    <button class="google-btn" onclick="loginWithGoogle()"><div class="google-icon">G</div> Entrar com Google</button>
-                    <p style="color:var(--text2);font-size:12px;margin-top:20px;">🔒 Login seguro via Google</p>
+                    <div class="login-subtitle">Ganhe dinheiro assistindo vídeos</div>
+                    
+                    <div class="video-box">
+                        <div class="video-wrapper">
+                            <video id="tutVideo" muted playsinline loop>
+                                <source src="${tutorialUrl}" type="video/mp4">
+                            </video>
+                        </div>
+                        <p class="video-caption">😂 "Ganhar dinheiro aqui é mais fácil que dançar!"</p>
+                    </div>
+                    
+                    <button class="google-btn" onclick="doLogin()">
+                        <span style="font-size:18px;">G</span> Entrar com Google
+                    </button>
+                    
+                    <p style="color:#b2bec3;font-size:12px;margin-top:20px;">🔒 Login seguro via Google</p>
                     <div class="login-footer">Ao continuar, concorda com os Termos de Serviço</div>
-                </div>`; setupTutorialVideo();
+                </div>
+            `;
+            
+            setTimeout(() => {
+                const v = document.getElementById('tutVideo');
+                if(v) v.play().catch(() => {});
+            }, 500);
         }
-        function setupTutorialVideo() { setTimeout(() => { const v = document.getElementById('tutorialVideo'); if(v) { v.loop=true; v.muted=true; v.playsInline=true; v.play().catch(()=>{}); v.addEventListener('timeupdate',()=>{ if(v.currentTime>=tutorialConfig.loopDuration) v.currentTime=0; }); } }, 500); }
-        function trackClick(type) { db.ref('clicks').push({ type, timestamp: Date.now() }); }
-
-        // ==========================================
-        // GOOGLE LOGIN
-        // ==========================================
-        async function loginWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            provider.setCustomParameters({ prompt: 'select_account' });
+        
+        async function doLogin() {
             try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.setCustomParameters({ prompt: 'select_account' });
                 const result = await auth.signInWithPopup(provider);
-                await handleGoogleUser(result.user);
+                await handleUser(result.user);
             } catch(e) {
-                if(e.code==='auth/popup-closed-by-user') return alert('❌ Janela fechada.');
-                if(e.code==='auth/popup-blocked') return alert('❌ Permita popups!');
-                try { await auth.signInWithRedirect(provider); } catch(err) { alert('❌ Erro. Tente novamente.'); }
+                if(e.code === 'auth/popup-closed-by-user') return;
+                if(e.code === 'auth/popup-blocked') {
+                    alert('Permita popups para fazer login!');
+                    return;
+                }
+                alert('Erro no login. Tente novamente.');
             }
         }
-        auth.getRedirectResult().then(async (result) => { if(result?.user) await handleGoogleUser(result.user); }).catch(()=>{});
-        async function handleGoogleUser(user) {
-            currentUser = user; isLoggedIn = true; userPlan = 'free'; userStats = {videosPosted:0,imagesPosted:0,articlesPosted:0,downloadsUsed:0};
-            const snap = await db.ref(`users/${user.uid}`).once('value');
-            if(!snap.exists()) await db.ref(`users/${user.uid}`).set({ name: user.displayName||'Usuário', email: user.email, photo: user.photoURL, plan: 'free', stats: userStats, createdAt: Date.now(), verified: true, authMethod: 'google' });
-            else { userPlan = snap.val().plan||'free'; userStats = snap.val().stats||userStats; }
-            alert('✅ Bem-vindo, '+(user.displayName||'Usuário')+'!'); renderMainApp();
-        }
-
-        // ==========================================
-        // APP PRINCIPAL (TUDO RECUPERADO)
-        // ==========================================
-        function renderMainApp() {
-            const app = document.getElementById('app'), plan = PLANS[userPlan], userPhoto = currentUser?.photoURL||'';
-            const remaining = { videos: plan.videos - userStats.videosPosted, images: plan.images - userStats.imagesPosted, articles: plan.articles - userStats.articlesPosted };
+        
+        async function handleUser(user) {
+            currentUser = user;
+            userPlan = 'free';
+            userStats = {videosPosted:0, imagesPosted:0, articlesPosted:0};
             
-            app.innerHTML = `
-                <div class="placard-bar">
-                    <a href="${placardLinks.deposit}" target="_blank" class="placard-btn" onclick="trackClick('deposit')">💰 CLICA E GANHA NA PLACARD</a>
-                    <a href="${placardLinks.whatsapp}" target="_blank" class="placard-btn whatsapp" onclick="trackClick('whatsapp')">📱 GRUPO WHATSAPP</a>
-                </div>
+            try {
+                const snap = await db.ref('users/' + user.uid).once('value');
+                if(!snap.exists()) {
+                    await db.ref('users/' + user.uid).set({
+                        name: user.displayName || 'Usuário',
+                        email: user.email,
+                        photo: user.photoURL,
+                        plan: 'free',
+                        stats: userStats,
+                        createdAt: Date.now()
+                    });
+                } else {
+                    const data = snap.val();
+                    userPlan = data.plan || 'free';
+                    userStats = data.stats || userStats;
+                }
+            } catch(e) {}
+            
+            alert('✅ Bem-vindo, ' + (user.displayName || 'Usuário') + '!');
+            renderApp();
+        }
+        
+        // ==================== MAIN APP ====================
+        function renderApp() {
+            const photo = currentUser?.photoURL || '';
+            
+            document.getElementById('app').innerHTML = `
                 <div class="header">
-                    <span class="logo" onclick="switchTab('home')">💎 ClipCash</span>
-                    <div class="header-right">
-                        <span class="header-btn" onclick="switchTab('plans')">💎</span>
-                        <span class="header-btn" onclick="switchTab('support')">🎧</span>
-                        <span class="header-btn" onclick="toggleChat()">💬</span>
-                        <span class="header-btn" onclick="toggleSidebar()">☰</span>
-                        ${userPhoto ? `<img src="${userPhoto}" class="user-avatar" onclick="logout()" title="Sair">` : `<span class="header-btn" onclick="logout()">🚪</span>`}
+                    <span class="logo-text" id="logoClick">💎 ClipCash</span>
+                    <div class="header-icons">
+                        <button class="icon-btn" onclick="openTab('plans')">💎</button>
+                        <button class="icon-btn" onclick="openTab('support')">🎧</button>
+                        <button class="icon-btn" onclick="toggleChat()">💬</button>
+                        <button class="icon-btn" onclick="openSidebar()">☰</button>
+                        ${photo ? `<img src="${photo}" class="avatar" onclick="doLogout()" title="Sair">` : `<button class="icon-btn" onclick="doLogout()">🚪</button>`}
                     </div>
                 </div>
-                <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-                <div class="sidebar" id="sidebar">
-                    <div class="sidebar-header">${userPhoto ? `<img src="${userPhoto}" style="width:48px;height:48px;border-radius:50%;border:2px solid var(--primary);">` : '<div style="width:48px;height:48px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:20px;">👤</div>'}<div><div style="font-weight:700;">${sanitize(currentUser?.displayName||'Utilizador')}</div><div style="font-size:10px;color:var(--gold);">Plano ${plan.name}</div></div></div>
-                    <div class="sidebar-section"><h4>📺 Plataformas (${Object.keys(PLATFORMS).length})</h4>${Object.keys(PLATFORMS).slice(0,10).map(k => `<div class="sidebar-item" onclick="switchPlatform('${k}');toggleSidebar()"><span>${PLATFORMS[k].icon}</span> ${PLATFORMS[k].name}</div>`).join('')}<div class="sidebar-item" onclick="showAllPlatforms();toggleSidebar()">📋 Ver Todas</div></div>
-                    <div class="sidebar-section"><h4>💰 Promover</h4><div class="sidebar-item" onclick="switchTab('promote');toggleSidebar()">🚀 Pagar para Crescer</div></div>
-                    <div class="sidebar-section"><h4>⚙️ Conta</h4><div class="sidebar-item" onclick="switchTab('plans');toggleSidebar()">💎 Planos</div><div class="sidebar-item" onclick="logout()">🚪 Sair</div></div>
+                <div class="content" id="mainContent"></div>
+                <div class="bottom-nav">
+                    <button class="nav-item active" onclick="openTab('home')"><span class="nav-icon">🏠</span>Início</button>
+                    <button class="nav-item" onclick="openTab('promote')"><span class="nav-icon">🚀</span>Crescer</button>
+                    <button class="nav-item" onclick="openTab('create')"><span class="nav-icon" style="font-size:24px;">➕</span></button>
+                    <button class="nav-item" onclick="openTab('plans')"><span class="nav-icon">💎</span>Planos</button>
+                    <button class="nav-item" onclick="openTab('support')"><span class="nav-icon">🎧</span>Suporte</button>
                 </div>
-                <div class="feed" id="mainContent"></div>
-                <div class="bottom-nav" id="bottomNav"></div>
-                <div class="chat-panel" id="chatPanel"><div class="chat-header">💬 Chat Global <span onclick="toggleChat()">✕</span></div><div class="chat-body" id="chatBody"></div><div class="chat-input"><input type="text" id="chatInput" placeholder="Mensagem..." onkeypress="if(event.key==='Enter')sendChat()"><button onclick="sendChat()">▶</button></div></div>
-                <div class="modal-overlay" id="modalOverlay"><div class="modal-box" id="modalContent"></div></div>
-                <div class="admin-lock" id="adminLock"><div style="background:var(--card);border-radius:16px;padding:30px;text-align:center;border:2px solid var(--primary);"><h2>🔐 Admin</h2><input type="password" id="adminPassword" style="width:100%;padding:14px;background:var(--input);border:1px solid var(--border);border-radius:10px;color:var(--text);text-align:center;font-size:16px;letter-spacing:8px;margin:15px 0;outline:none;" placeholder="Senha"><button class="btn btn-primary" onclick="verifyAdmin()">Acessar</button></div></div>
-                <div class="admin-panel" id="adminPanel"><div class="admin-header"><h2>🔐 Painel Admin</h2><button class="admin-close" onclick="closeAdminPanel()">✕</button></div><div class="admin-content">
-                    <div class="admin-card" onclick="adminConfigureTutorial()"><h3>📹 Configurar Vídeo Tutorial</h3></div>
-                    <div class="admin-card" onclick="adminConfigurePlacard()"><h3>💰 Configurar Links Placard</h3></div>
-                    <div class="admin-card" onclick="adminViewUpgrades()"><h3>💎 Aprovar Upgrades</h3></div>
-                    <div class="admin-card" onclick="adminViewPromotions()"><h3>🚀 Promoções</h3></div>
-                    <div class="admin-card" onclick="adminSupportTickets()"><h3>🎧 Suporte</h3></div>
-                    <div class="admin-card" onclick="adminStats()"><h3>📊 Estatísticas</h3></div>
-                    <div class="admin-card" onclick="adminChangePassword()"><h3>🔑 Alterar Senha</h3></div>
-                </div></div>
             `;
-            setupBottomNav(); switchPlatform('youtube'); loadChat(); setupAdminDetection();
+            
+            renderSidebar();
+            showHome();
+            setupChat();
+            setupAdminTrigger();
         }
-
-        function setupBottomNav() {
-            document.getElementById('bottomNav').innerHTML = `
-                <button class="nav-item active" onclick="switchTab('home')"><span class="nav-icon">🏠</span>Início</button>
-                <button class="nav-item" onclick="switchTab('promote')"><span class="nav-icon">🚀</span>Promover</button>
-                <button class="nav-item" onclick="switchTab('create')"><span class="nav-icon" style="font-size:26px;">➕</span></button>
-                <button class="nav-item" onclick="switchTab('plans')"><span class="nav-icon">💎</span>Planos</button>
-                <button class="nav-item" onclick="switchTab('support')"><span class="nav-icon">🎧</span>Suporte</button>
+        
+        function renderSidebar() {
+            const photo = currentUser?.photoURL || '';
+            document.getElementById('sidebar').innerHTML = `
+                <div class="sidebar-header">
+                    ${photo ? `<img src="${photo}" style="width:48px;height:48px;border-radius:50%;border:2px solid #6c5ce7;">` : '<div style="width:48px;height:48px;border-radius:50%;background:#6c5ce7;display:flex;align-items:center;justify-content:center;font-size:20px;">👤</div>'}
+                    <div>
+                        <div style="font-weight:bold;">${safe(currentUser?.displayName || 'Usuário')}</div>
+                        <div style="font-size:10px;color:#ffd700;">Plano ${PLANS[userPlan].name}</div>
+                    </div>
+                </div>
+                ${Object.keys(PLATFORMS).slice(0,10).map(k => `
+                    <div class="sidebar-item" onclick="selectPlatform('${k}');closeSidebar()">
+                        <span>${PLATFORMS[k].icon}</span> ${PLATFORMS[k].name}
+                    </div>
+                `).join('')}
+                <div class="sidebar-item" onclick="showAllPlatforms();closeSidebar()">📋 Ver Todas</div>
+                <div class="sidebar-item" onclick="openTab('promote');closeSidebar()">🚀 Crescer Redes</div>
+                <div class="sidebar-item" onclick="openTab('plans');closeSidebar()">💎 Planos</div>
+                <div class="sidebar-item" onclick="doLogout()">🚪 Sair</div>
             `;
         }
-
-        function switchTab(tab) {
+        
+        function openSidebar() {
+            document.getElementById('sidebar').classList.add('open');
+            document.getElementById('sidebarOverlay').classList.add('open');
+        }
+        
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('open');
+        }
+        
+        function openTab(tab) {
             currentTab = tab;
-            document.querySelectorAll('.bottom-nav .nav-item').forEach(i => i.classList.remove('active'));
-            const map = { home: 1, promote: 2, create: 3, plans: 4, support: 5 };
-            document.querySelector(`.bottom-nav .nav-item:nth-child(${map[tab]})`)?.classList.add('active');
-            const content = document.getElementById('mainContent');
+            document.querySelectorAll('.nav-item').forEach((el, i) => {
+                el.classList.remove('active');
+                if(['home','promote','create','plans','support'][i] === tab) el.classList.add('active');
+            });
+            
             switch(tab) {
-                case 'home': switchPlatform(currentPlatform); break;
-                case 'promote': renderPromotePage(content); break;
-                case 'create': renderCreatePost(content); break;
-                case 'plans': renderPlansPage(content); break;
-                case 'support': renderSupportPage(content); break;
+                case 'home': showHome(); break;
+                case 'promote': showPromote(); break;
+                case 'create': showCreate(); break;
+                case 'plans': showPlans(); break;
+                case 'support': showSupport(); break;
             }
         }
-
-        function switchPlatform(platform) {
+        
+        function selectPlatform(platform) {
             currentPlatform = platform;
-            const content = document.getElementById('mainContent');
-            let html = `<div class="platform-tabs">${Object.keys(PLATFORMS).slice(0,15).map(k => `<div class="platform-tab ${k===platform?'active':''}" onclick="switchPlatform('${k}')"><span>${PLATFORMS[k].icon}</span> ${PLATFORMS[k].name}</div>`).join('')}<div class="platform-tab" onclick="showAllPlatforms()">📋 Todas</div></div><div id="feedVideos">`;
-            (videoDatabase[platform]||[]).slice(0,20).forEach(v => {
-                html += `<div class="video-card" onclick="alert('🎬 ${sanitize(v.title)}')"><div class="video-thumb"><span style="font-size:48px;">${PLATFORMS[platform].icon}</span><span class="video-duration">${v.duration}</span></div><div class="video-info"><div class="channel-avatar" style="background:${PLATFORMS[platform].color};">${sanitize(v.channel.charAt(0))}</div><div class="video-details"><h3>${sanitize(v.title)}</h3><div class="meta">${sanitize(v.channel)} · ${formatNumber(v.views)} · ${v.timeAgo}</div></div></div></div>`;
-            });
-            html += '</div>'; content.innerHTML = html;
+            showHome();
         }
-
+        
         function showAllPlatforms() {
-            const modal = document.getElementById('modalOverlay'), content = document.getElementById('modalContent');
-            modal.classList.add('open');
-            let html = `<h3>📺 Todas as Plataformas (${Object.keys(PLATFORMS).length})</h3><div style="max-height:400px;overflow-y:auto;">`;
-            Object.keys(PLATFORMS).forEach(key => {
-                html += `<div style="padding:10px;background:var(--input);border-radius:8px;margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:10px;" onclick="switchPlatform('${key}');document.getElementById('modalOverlay').classList.remove('open')"><span style="font-size:20px;">${PLATFORMS[key].icon}</span><span>${PLATFORMS[key].name}</span><span style="margin-left:auto;color:var(--gold);">${PLATFORMS[key].price} MT</span></div>`;
+            const modal = document.getElementById('modal');
+            const box = document.getElementById('modalBox');
+            let html = '<h3 style="margin-bottom:15px;">📺 Todas as Plataformas</h3><div style="max-height:350px;overflow-y:auto;">';
+            Object.keys(PLATFORMS).forEach(k => {
+                html += `<div style="padding:12px;background:#1e1e1e;border-radius:8px;margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:10px;" onclick="selectPlatform('${k}');closeModal()"><span style="font-size:20px;">${PLATFORMS[k].icon}</span><span>${PLATFORMS[k].name}</span></div>`;
             });
-            html += '</div><button class="btn btn-outline" style="margin-top:10px;" onclick="document.getElementById(\'modalOverlay\').classList.remove(\'open\')">Fechar</button>';
+            html += '</div><button class="btn btn-outline" style="margin-top:10px;" onclick="closeModal()">Fechar</button>';
+            box.innerHTML = html;
+            modal.classList.add('open');
+        }
+        
+        function closeModal() {
+            document.getElementById('modal').classList.remove('open');
+        }
+        
+        function showHome() {
+            const content = document.getElementById('mainContent');
+            if(!content) return;
+            const plat = PLATFORMS[currentPlatform];
+            let html = '<div class="tabs">';
+            Object.keys(PLATFORMS).slice(0,12).forEach(k => {
+                html += `<div class="tab ${k === currentPlatform ? 'active' : ''}" onclick="selectPlatform('${k}')">${PLATFORMS[k].icon} ${PLATFORMS[k].name}</div>`;
+            });
+            html += '<div class="tab" onclick="showAllPlatforms()">📋 Mais</div></div>';
+            
+            for(let i = 0; i < 20; i++) {
+                html += `<div class="video-item" onclick="alert('🎬 Vídeo exemplo ${i+1}')">
+                    <div class="video-thumb"><span>${plat.icon}</span></div>
+                    <div class="video-info">
+                        <div class="channel-icon" style="background:${plat.color};">C</div>
+                        <div class="video-text">
+                            <h3>Como Crescer no ${plat.name} em 2024</h3>
+                            <span>Creator Pro · ${formatNum(Math.floor(Math.random()*5000000)+50000)} visualizações · ${Math.floor(Math.random()*30)+1} dias atrás</span>
+                        </div>
+                    </div>
+                </div>`;
+            }
             content.innerHTML = html;
         }
-
-        function renderPromotePage(content) {
-            if(!PLANS[userPlan].promotion) { content.innerHTML = `<div class="promote-card" style="text-align:center;"><h3>🚀 Promoção Exclusiva</h3><p style="color:var(--text2);">Disponível para Premium!</p><button class="btn btn-primary" onclick="switchTab('plans')">💎 Ver Planos</button></div>`; return; }
-            content.innerHTML = `<div class="promote-card"><h3>🚀 Promova sua Conta</h3><select id="promotePlatform" class="promote-input">${Object.keys(PLATFORMS).map(k => `<option value="${k}">${PLATFORMS[k].icon} ${PLATFORMS[k].name} - ${PLATFORMS[k].price} MT</option>`).join('')}</select><input type="text" id="promoteName" class="promote-input" placeholder="Seu nome"><input type="tel" id="promotePhone" class="promote-input" placeholder="Seu número"><input type="text" id="promoteLink" class="promote-input" placeholder="Link do seu vídeo"><select id="paymentMethod" class="promote-input"><option value="mpesa">📱 M-Pesa</option><option value="emola">📱 E-Mola</option><option value="bank">🏦 Banco</option></select><button class="btn btn-primary" onclick="submitPromotion()">💸 Solicitar Promoção</button></div>`;
+        
+        function showPromote() {
+            const content = document.getElementById('mainContent');
+            if(!content) return;
+            content.innerHTML = `
+                <div class="card">
+                    <h3 style="margin-bottom:15px;">🚀 Crescer suas Redes Sociais</h3>
+                    <p style="color:#b2bec3;font-size:12px;margin-bottom:15px;">Aumente seguidores, likes e visualizações</p>
+                    <label style="font-size:12px;">Plataforma:</label>
+                    <select id="promoPlatform" class="input-field">${Object.keys(PLATFORMS).map(k => `<option value="${k}">${PLATFORMS[k].icon} ${PLATFORMS[k].name}</option>`).join('')}</select>
+                    <label style="font-size:12px;">Seu nome:</label>
+                    <input type="text" id="promoName" class="input-field" placeholder="Ex: João Silva">
+                    <label style="font-size:12px;">WhatsApp:</label>
+                    <input type="tel" id="promoPhone" class="input-field" placeholder="Ex: 841234567">
+                    <label style="font-size:12px;">Link do seu perfil:</label>
+                    <input type="url" id="promoLink" class="input-field" placeholder="https://...">
+                    <label style="font-size:12px;">Quantidade:</label>
+                    <select id="promoQty" class="input-field">
+                        <option value="1000">1.000 - 100 MT</option>
+                        <option value="5000">5.000 - 400 MT</option>
+                        <option value="10000">10.000 - 700 MT</option>
+                        <option value="50000">50.000 - 2.500 MT</option>
+                        <option value="100000">100.000 - 4.500 MT</option>
+                    </select>
+                    <label style="font-size:12px;">Pagamento:</label>
+                    <select id="promoPayment" class="input-field">
+                        <option value="mpesa">📱 M-Pesa</option>
+                        <option value="emola">📱 E-Mola</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="submitPromotion()">💸 Solicitar Crescimento</button>
+                </div>`;
         }
-
+        
         async function submitPromotion() {
-            const platform = document.getElementById('promotePlatform')?.value;
-            const name = sanitize(document.getElementById('promoteName')?.value?.trim()||'');
-            const phone = sanitize(document.getElementById('promotePhone')?.value?.trim()||'');
-            const link = sanitize(document.getElementById('promoteLink')?.value?.trim()||'');
-            const method = document.getElementById('paymentMethod')?.value;
-            if(!name||!phone||!link) return alert('Preencha todos!');
-            await db.ref('payments/promotions').push({ platform, name, phone, link, method, amount: PLATFORMS[platform].price, userId: currentUser?.uid, timestamp: Date.now(), status: 'pending' });
-            alert('✅ Pedido enviado!');
+            const platform = document.getElementById('promoPlatform')?.value;
+            const name = document.getElementById('promoName')?.value?.trim();
+            const phone = document.getElementById('promoPhone')?.value?.trim();
+            const link = document.getElementById('promoLink')?.value?.trim();
+            const qty = document.getElementById('promoQty')?.value;
+            const payment = document.getElementById('promoPayment')?.value;
+            
+            if(!name || !phone || !link) { alert('Preencha todos os campos!'); return; }
+            
+            const prices = {'1000':100,'5000':400,'10000':700,'50000':2500,'100000':4500};
+            
+            try {
+                await db.ref('payments/promotions').push({
+                    platform, platformName: PLATFORMS[platform].name,
+                    name: safe(name), phone: safe(phone), link: safe(link),
+                    quantity: parseInt(qty), amount: prices[qty], paymentMethod: payment,
+                    userId: currentUser?.uid, userEmail: currentUser?.email,
+                    timestamp: Date.now(), status: 'pending'
+                });
+                alert('✅ Pedido enviado! Entraremos em contato.');
+                openTab('home');
+            } catch(e) { alert('Erro: ' + e.message); }
         }
-
-        function renderCreatePost(content) {
-            const remaining = { videos: PLANS[userPlan].videos - userStats.videosPosted, images: PLANS[userPlan].images - userStats.imagesPosted, articles: PLANS[userPlan].articles - userStats.articlesPosted };
-            content.innerHTML = `<div class="create-post"><h3 style="margin-bottom:12px;">📝 Criar Publicação</h3><div style="display:flex;gap:10px;margin-bottom:12px;font-size:11px;"><span>🎬 Vídeos: ${remaining.videos}</span><span>📷 Imagens: ${remaining.images}</span><span>📝 Artigos: ${remaining.articles}</span></div><textarea id="postText" placeholder="Escreva seu artigo..."></textarea><div id="mediaPreview" style="margin-top:10px;"></div><div class="create-actions"><button class="create-btn" onclick="selectMedia('image/*','image')">📷 Imagem</button><button class="create-btn" onclick="selectMedia('video/*','video')">🎬 Vídeo</button></div><input type="file" id="mediaInput" style="display:none;" onchange="handleMediaSelect(event)"><div class="upload-progress" id="postUploadProgress"><div class="bar" id="postUploadBar" style="width:0%"></div></div><button class="btn btn-primary" style="margin-top:12px;" onclick="publishPost()">📤 Publicar</button></div>`;
+        
+        let selectedFile = null;
+        let selectedFileType = null;
+        
+        function showCreate() {
+            const content = document.getElementById('mainContent');
+            if(!content) return;
+            const rem = {
+                videos: PLANS[userPlan].videos - userStats.videosPosted,
+                images: PLANS[userPlan].images - userStats.imagesPosted,
+                articles: PLANS[userPlan].articles - userStats.articlesPosted
+            };
+            content.innerHTML = `
+                <div class="card">
+                    <h3 style="margin-bottom:12px;">📝 Criar Publicação</h3>
+                    <div style="display:flex;gap:15px;margin-bottom:12px;font-size:11px;">
+                        <span>🎬 ${rem.videos}</span><span>📷 ${rem.images}</span><span>📝 ${rem.articles}</span>
+                    </div>
+                    <textarea id="postText" class="input-field" style="min-height:80px;resize:vertical;" placeholder="Escreva seu artigo..."></textarea>
+                    <div id="mediaPreview" style="margin:10px 0;"></div>
+                    <button class="btn btn-outline btn-sm" onclick="document.getElementById('fileInput').click()">📷 Imagem/Vídeo</button>
+                    <input type="file" id="fileInput" style="display:none;" accept="image/*,video/*" onchange="handleFile(event)">
+                    <button class="btn btn-primary" style="margin-top:12px;" onclick="publishPost()">📤 Publicar</button>
+                </div>`;
         }
-
-        let selectedMediaFile = null, selectedMediaType = null;
-        function selectMedia(accept, type) { const input = document.getElementById('mediaInput'); if(input) { input.accept = accept; input.dataset.type = type; input.click(); } }
-        function handleMediaSelect(event) {
-            const file = event.target.files[0]; if(!file) return;
-            const validation = validateFile(file);
-            if(!validation.valid) { alert('❌ '+validation.error); event.target.value = ''; return; }
-            selectedMediaFile = file; selectedMediaType = document.getElementById('mediaInput')?.dataset.type;
+        
+        function handleFile(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            if(file.size > 100*1024*1024) { alert('Arquivo muito grande!'); return; }
+            selectedFile = file;
+            selectedFileType = file.type.startsWith('image/') ? 'image' : 'video';
             const preview = document.getElementById('mediaPreview');
-            if(preview && selectedMediaType==='image') { const reader = new FileReader(); reader.onload = e => { preview.innerHTML = `<img src="${e.target.result}" style="max-width:100%;max-height:200px;border-radius:8px;">`; }; reader.readAsDataURL(file); }
-        }
-        async function publishPost() {
-            const text = sanitize(document.getElementById('postText')?.value?.trim()||'');
-            if(!text && !selectedMediaFile) return alert('Escreva algo!');
-            if(text) userStats.articlesPosted++;
-            if(selectedMediaFile) { if(selectedMediaType==='image') userStats.imagesPosted++; else userStats.videosPosted++; }
-            await db.ref(`users/${currentUser?.uid}/stats`).set(userStats);
-            const postData = { content: text, userName: sanitize(currentUser?.displayName||'Utilizador'), timestamp: Date.now(), likes: {}, comments: {} };
-            if(selectedMediaFile) {
-                const fileId = `post_${Date.now()}_${Math.random().toString(36).substr(2,5)}`;
-                const folder = selectedMediaType==='image'?'images':'videos';
-                const storageRef = storage.ref(`${folder}/${currentUser?.uid}/${fileId}`);
-                await storageRef.put(selectedMediaFile); postData.mediaUrl = await storageRef.getDownloadURL();
+            if(preview && selectedFileType === 'image') {
+                const reader = new FileReader();
+                reader.onload = ev => { preview.innerHTML = `<img src="${ev.target.result}" style="max-width:100%;max-height:200px;border-radius:8px;">`; };
+                reader.readAsDataURL(file);
             }
-            await db.ref('posts').push(postData);
-            alert('✅ Publicado!'); switchTab('home'); selectedMediaFile = null; selectedMediaType = null;
+            if(preview && selectedFileType === 'video') {
+                preview.innerHTML = `<p style="color:#ffd700;">🎬 ${file.name}</p>`;
+            }
         }
-
-        function renderPlansPage(content) {
-            content.innerHTML = `<div style="padding:10px;"><h3 style="text-align:center;margin:15px 0;">Seu Plano: <span style="color:var(--gold);">${PLANS[userPlan].name}</span></h3>
-            <div class="plan-card"><h3>🆓 Gratuito</h3><ul class="plan-features"><li>5 vídeos/mês</li><li>30 imagens/mês</li><li>40 artigos/mês</li><li>3 downloads</li></ul>${userPlan==='free'?'<p style="color:var(--success);">✅ Plano atual</p>':''}</div>
-            <div class="plan-card premium"><h3>⭐ Premium Mensal</h3><div class="plan-price">100 MT<small>/mês</small></div><ul class="plan-features"><li>50 vídeos/mês</li><li>200 imagens/mês</li><li>200 artigos/mês</li><li>50 downloads</li><li>✅ Promoção</li></ul><button class="btn btn-premium" onclick="upgradePlan('monthly')" ${userPlan==='monthly'?'disabled':''}>${userPlan==='monthly'?'✅ Plano Atual':'💎 Assinar'}</button></div>
-            <div class="plan-card premium"><h3>👑 Premium Anual</h3><div class="plan-price">1.000 MT<small>/ano</small></div><ul class="plan-features"><li>500 vídeos/mês</li><li>2.000 imagens/mês</li><li>2.000 artigos/mês</li><li>500 downloads</li><li>✅ Tudo ilimitado!</li></ul><button class="btn btn-premium" onclick="upgradePlan('yearly')" ${userPlan==='yearly'?'disabled':''}>${userPlan==='yearly'?'✅ Plano Atual':'👑 Assinar'}</button></div>
-            <div style="background:var(--card);border-radius:12px;padding:15px;margin:12px;text-align:center;"><h4>💳 Pagamento</h4><p style="font-size:12px;color:var(--text2);">📱 M-Pesa: 84 000 0000</p><p style="font-size:12px;color:var(--text2);">📱 E-Mola: 84 000 0000</p></div></div>`;
+        
+        async function publishPost() {
+            const text = document.getElementById('postText')?.value?.trim();
+            if(!text && !selectedFile) { alert('Escreva algo!'); return; }
+            if(text) userStats.articlesPosted++;
+            if(selectedFile) {
+                if(selectedFileType === 'image') userStats.imagesPosted++;
+                else userStats.videosPosted++;
+            }
+            try {
+                await db.ref('users/' + currentUser.uid + '/stats').set(userStats);
+                const postData = { content: safe(text || ''), userName: safe(currentUser?.displayName || 'Usuário'), timestamp: Date.now() };
+                if(selectedFile) {
+                    const ref = storage.ref('posts/' + currentUser.uid + '/' + Date.now());
+                    await ref.put(selectedFile);
+                    postData.mediaUrl = await ref.getDownloadURL();
+                }
+                await db.ref('posts').push(postData);
+                alert('✅ Publicado!');
+                openTab('home');
+                selectedFile = null;
+            } catch(e) { alert('Erro: ' + e.message); }
         }
-
+        
+        function showPlans() {
+            const content = document.getElementById('mainContent');
+            if(!content) return;
+            content.innerHTML = `
+                <div style="padding:10px;">
+                    <h3 style="text-align:center;margin:15px 0;">Seu Plano: <span style="color:#ffd700;">${PLANS[userPlan].name}</span></h3>
+                    <div class="plan-card"><h3>🆓 Gratuito</h3><ul class="plan-features"><li>5 vídeos/mês</li><li>30 imagens/mês</li><li>40 artigos/mês</li></ul>${userPlan==='free'?'<p style="color:#00b894;">✅ Atual</p>':''}</div>
+                    <div class="plan-card premium"><h3>⭐ Premium Mensal</h3><div class="plan-price">100 MT<small>/mês</small></div><ul class="plan-features"><li>50 vídeos/mês</li><li>200 imagens/mês</li><li>200 artigos/mês</li><li>✅ Promoções</li></ul><button class="btn btn-premium" onclick="upgradePlan('monthly')" ${userPlan==='monthly'?'disabled':''}>${userPlan==='monthly'?'✅ Atual':'💎 Assinar'}</button></div>
+                    <div class="plan-card premium"><h3>👑 Premium Anual</h3><div class="plan-price">1.000 MT<small>/ano</small></div><ul class="plan-features"><li>500 vídeos/mês</li><li>2.000 imagens/mês</li><li>2.000 artigos/mês</li><li>✅ Tudo ilimitado</li></ul><button class="btn btn-premium" onclick="upgradePlan('yearly')" ${userPlan==='yearly'?'disabled':''}>${userPlan==='yearly'?'✅ Atual':'👑 Assinar'}</button></div>
+                    <div style="background:#141414;border-radius:12px;padding:15px;margin:12px;text-align:center;"><h4>💳 Pagamento</h4><p style="font-size:12px;">📱 M-Pesa: 84 000 0000</p><p style="font-size:12px;">📱 E-Mola: 84 000 0000</p></div>
+                </div>`;
+        }
+        
         async function upgradePlan(type) {
-            const phone = prompt('📱 Número para confirmação:');
-            if(phone) { await db.ref('payments/upgrades').push({ userId: currentUser?.uid, phone: sanitize(phone), plan: type, amount: PLANS[type].price, timestamp: Date.now(), status: 'pending' }); alert('✅ Pedido enviado!'); }
+            const phone = prompt('WhatsApp para confirmação:');
+            if(!phone) return;
+            try {
+                await db.ref('payments/upgrades').push({
+                    userId: currentUser?.uid, userEmail: currentUser?.email,
+                    phone: safe(phone), plan: type, amount: PLANS[type].price,
+                    timestamp: Date.now(), status: 'pending'
+                });
+                alert('✅ Pedido enviado!');
+            } catch(e) { alert('Erro: ' + e.message); }
         }
-
-        function renderSupportPage(content) {
-            content.innerHTML = `<div class="promote-card"><h3>🎧 Suporte Técnico</h3><input type="text" id="ticketSubject" class="promote-input" placeholder="Assunto"><textarea id="ticketMessage" class="promote-input" style="min-height:100px;" placeholder="Descreva seu problema..."></textarea><button class="btn btn-primary" onclick="submitTicket()">📤 Enviar Ticket</button></div>`;
+        
+        function showSupport() {
+            const content = document.getElementById('mainContent');
+            if(!content) return;
+            content.innerHTML = `
+                <div class="card">
+                    <h3 style="margin-bottom:15px;">🎧 Suporte</h3>
+                    <input type="text" id="ticketSubject" class="input-field" placeholder="Assunto">
+                    <textarea id="ticketMessage" class="input-field" style="min-height:100px;resize:vertical;" placeholder="Descreva seu problema..."></textarea>
+                    <button class="btn btn-primary" onclick="submitTicket()">📤 Enviar</button>
+                    <div style="margin-top:20px;padding:15px;background:#1e1e1e;border-radius:10px;"><h4 style="margin-bottom:10px;">📞 Contato</h4><p style="font-size:12px;">WhatsApp: +258 84 000 0000</p></div>
+                </div>`;
         }
+        
         async function submitTicket() {
-            const subject = sanitize(document.getElementById('ticketSubject')?.value?.trim()||'');
-            const message = sanitize(document.getElementById('ticketMessage')?.value?.trim()||'');
-            if(!subject||!message) return alert('Preencha todos!');
-            await db.ref('support/tickets').push({ subject, message, userId: currentUser?.uid, userName: sanitize(currentUser?.displayName||''), timestamp: Date.now(), status: 'open' });
-            alert('✅ Ticket enviado!');
+            const subject = document.getElementById('ticketSubject')?.value?.trim();
+            const message = document.getElementById('ticketMessage')?.value?.trim();
+            if(!subject || !message) { alert('Preencha todos!'); return; }
+            try {
+                await db.ref('support/tickets').push({
+                    subject: safe(subject), message: safe(message),
+                    userId: currentUser?.uid, userName: safe(currentUser?.displayName || ''),
+                    userEmail: currentUser?.email, timestamp: Date.now(), status: 'open'
+                });
+                alert('✅ Enviado!');
+                openTab('home');
+            } catch(e) { alert('Erro: ' + e.message); }
         }
-
-        function toggleChat() { document.getElementById('chatPanel')?.classList.toggle('open'); }
-        function loadChat() { db.ref('chat').limitToLast(30).on('child_added', s => { const m = s.val(), b = document.getElementById('chatBody'); if(b) { const d = document.createElement('div'); d.innerHTML = `<b>${sanitize(m.user||'Anónimo')}:</b> ${sanitize(m.text)}`; b.appendChild(d); b.scrollTop = b.scrollHeight; } }); }
-        function sendChat() { const now = Date.now(); if(now - lastMessageTime < 3000) return alert('⏳ Aguarde 3s!'); lastMessageTime = now; const i = document.getElementById('chatInput'); if(!i) return; const t = sanitize(i.value.trim()); if(t) { db.ref('chat').push({ user: sanitize(currentUser?.displayName||'User'), text: t.substring(0,200), timestamp: Date.now() }); i.value = ''; } }
-        function toggleSidebar() { document.getElementById('sidebar')?.classList.toggle('open'); document.getElementById('sidebarOverlay')?.classList.toggle('open'); }
-
-        function setupAdminDetection() { const btn = document.querySelector('.bottom-nav .nav-item:first-child'); if(btn) btn.addEventListener('click', () => { if(!isAdmin && currentTab==='home') { homeClickCount++; if(homeClickTimer) clearTimeout(homeClickTimer); if(homeClickCount >= ADMIN_CLICKS) { homeClickCount = 0; document.getElementById('adminLock').classList.add('open'); } homeClickTimer = setTimeout(() => { homeClickCount = 0; }, 2000); } }); }
-        async function verifyAdmin() { const p = document.getElementById('adminPassword')?.value; const s = await db.ref('config/adminPassword').once('value'); const stored = s.val(); if(!stored) await db.ref('config/adminPassword').set('clipcash2024'); if(p === (stored||'clipcash2024')) { isAdmin = true; document.getElementById('adminLock').classList.remove('open'); document.getElementById('adminPanel').classList.add('open'); } else alert('❌ Senha incorreta!'); }
-        function closeAdminPanel() { document.getElementById('adminPanel').classList.remove('open'); isAdmin = false; }
-
-        function adminConfigureTutorial() { const modal = document.getElementById('modalOverlay'), content = document.getElementById('modalContent'); modal.classList.add('open'); content.innerHTML = `<h3>📹 Configurar Vídeo Tutorial</h3><input type="text" id="tutorialUrl" class="promote-input" value="${tutorialConfig.url}"><input type="number" id="loopDuration" class="promote-input" value="${tutorialConfig.loopDuration}"><input type="text" id="captionText" class="promote-input" value="${tutorialConfig.caption}"><button class="btn btn-primary" onclick="saveTutorialConfig()">💾 Guardar</button><button class="btn btn-outline" style="margin-top:8px;" onclick="document.getElementById('modalOverlay').classList.remove('open')">Cancelar</button>`; }
-        function saveTutorialConfig() { const u = document.getElementById('tutorialUrl')?.value, d = document.getElementById('loopDuration')?.value, c = document.getElementById('captionText')?.value; if(u) tutorialConfig.url = u; if(d) tutorialConfig.loopDuration = parseInt(d); if(c) tutorialConfig.caption = sanitize(c); db.ref('config/tutorialVideo').set(tutorialConfig); document.getElementById('modalOverlay').classList.remove('open'); alert('✅ Guardado!'); }
-
-        function adminConfigurePlacard() { const modal = document.getElementById('modalOverlay'), content = document.getElementById('modalContent'); modal.classList.add('open'); content.innerHTML = `<h3>💰 Configurar Links Placard</h3><label>Link de Afiliado</label><input type="text" id="depositLink" class="promote-input" value="${placardLinks.deposit}"><label>Link WhatsApp</label><input type="text" id="whatsappLink" class="promote-input" value="${placardLinks.whatsapp}"><button class="btn btn-primary" onclick="savePlacardConfig()">💾 Guardar</button><button class="btn btn-outline" style="margin-top:8px;" onclick="document.getElementById('modalOverlay').classList.remove('open')">Cancelar</button>`; }
-        function savePlacardConfig() { const d = document.getElementById('depositLink')?.value, w = document.getElementById('whatsappLink')?.value; if(d) placardLinks.deposit = d; if(w) placardLinks.whatsapp = w; db.ref('config/placardLinks').set(placardLinks); document.getElementById('modalOverlay').classList.remove('open'); alert('✅ Guardado!'); }
-
-        function adminViewUpgrades() { alert('💎 Upgrades: Verifique no Firebase Console'); }
-        function adminViewPromotions() { alert('🚀 Promoções: Verifique no Firebase Console'); }
-        function adminSupportTickets() { alert('🎧 Suporte: Verifique no Firebase Console'); }
-        function adminStats() { alert('📊 Estatísticas: Verifique no Firebase Console'); }
-        async function adminChangePassword() { const p = prompt('Nova senha:'); if(p?.length >= 6) { await db.ref('config/adminPassword').set(p); alert('✅ Alterada!'); } }
-
-        async function logout() { await auth.signOut(); currentUser = null; isLoggedIn = false; renderLoginScreen(); }
-
-        // ==========================================
-        // INIT
-        // ==========================================
-        async function initApp() {
-            await loadConfig();
-            const s = await db.ref('config/adminPassword').once('value');
-            if(!s.val()) await db.ref('config/adminPassword').set('clipcash2024');
-            auth.onAuthStateChanged(async (user) => {
-                if(user) { currentUser = user; isLoggedIn = true; const snap = await db.ref(`users/${user.uid}`).once('value'); if(snap.exists()) { userPlan = snap.val().plan||'free'; userStats = snap.val().stats||userStats; } renderMainApp(); }
-                else { renderLoginScreen(); }
+        
+        function setupChat() {
+            db.ref('chat').limitToLast(30).on('child_added', snap => {
+                const msg = snap.val();
+                const container = document.getElementById('chatMessages');
+                if(container) {
+                    container.innerHTML += `<div><b>${safe(msg.user || 'Anônimo')}:</b> ${safe(msg.text)}</div>`;
+                    container.scrollTop = container.scrollHeight;
+                }
             });
         }
-        document.addEventListener('click', e => { if(e.target.classList.contains('sidebar-overlay')) toggleSidebar(); });
-        initApp();
+        
+        function toggleChat() {
+            document.getElementById('chatPanel').classList.toggle('open');
+        }
+        
+        function sendMessage() {
+            const now = Date.now();
+            if(now - lastMsgTime < 3000) return;
+            lastMsgTime = now;
+            const input = document.getElementById('chatInput');
+            if(!input) return;
+            const text = input.value.trim();
+            if(text) {
+                db.ref('chat').push({
+                    user: safe(currentUser?.displayName || 'User'),
+                    text: safe(text.substring(0, 200)),
+                    timestamp: Date.now()
+                });
+                input.value = '';
+            }
+        }
+        
+        function setupAdminTrigger() {
+            const logo = document.getElementById('logoClick');
+            if(logo) {
+                logo.addEventListener('click', () => {
+                    if(!isAdmin) {
+                        clickCount++;
+                        if(clickTimer) clearTimeout(clickTimer);
+                        if(clickCount >= 15) {
+                            clickCount = 0;
+                            document.getElementById('adminLock').classList.add('open');
+                        }
+                        clickTimer = setTimeout(() => { clickCount = 0; }, 2000);
+                    }
+                });
+            }
+        }
+        
+        async function verifyAdmin() {
+            const pass = document.getElementById('adminPass')?.value;
+            if(!pass) return;
+            try {
+                const snap = await db.ref('config/adminPassword').once('value');
+                const stored = snap.val() || 'clipcash2024';
+                if(pass === stored) {
+                    isAdmin = true;
+                    document.getElementById('adminLock').classList.remove('open');
+                    openAdminPanel();
+                } else {
+                    alert('Senha incorreta!');
+                }
+            } catch(e) {
+                if(pass === 'clipcash2024') {
+                    isAdmin = true;
+                    document.getElementById('adminLock').classList.remove('open');
+                    openAdminPanel();
+                }
+            }
+        }
+        
+        function openAdminPanel() {
+            document.getElementById('adminPanel').classList.add('open');
+            document.getElementById('adminContent').innerHTML = `
+                <div class="admin-card" onclick="adminTutorial()"><h3>📹 Configurar Vídeo</h3></div>
+                <div class="admin-card" onclick="adminPlacard()"><h3>💰 Links Placard</h3></div>
+                <div class="admin-card" onclick="adminUpgrades()"><h3>💎 Upgrades Pendentes</h3></div>
+                <div class="admin-card" onclick="adminPromotions()"><h3>🚀 Promoções Pendentes</h3></div>
+                <div class="admin-card" onclick="adminTickets()"><h3>🎧 Tickets Suporte</h3></div>
+                <div class="admin-card" onclick="adminLinks()"><h3>🔗 Links Crescimento</h3></div>
+                <div class="admin-card" onclick="adminStats()"><h3>📊 Estatísticas</h3></div>
+                <div class="admin-card" onclick="adminPassword()"><h3>🔑 Alterar Senha</h3></div>
+            `;
+        }
+        
+        function closeAdmin() {
+            document.getElementById('adminPanel').classList.remove('open');
+            isAdmin = false;
+        }
+        
+        function adminTutorial() {
+            const modal = document.getElementById('modal');
+            const box = document.getElementById('modalBox');
+            modal.classList.add('open');
+            box.innerHTML = `
+                <h3 style="margin-bottom:15px;">📹 Vídeo Tutorial</h3>
+                <label>URL do vídeo:</label>
+                <input type="text" id="tutUrl" class="input-field" value="${tutorialUrl}">
+                <button class="btn btn-primary" onclick="saveTutorial()">💾 Guardar</button>
+                <button class="btn btn-outline" style="margin-top:8px;" onclick="closeModal()">Cancelar</button>
+            `;
+        }
+        
+        function saveTutorial() {
+            const url = document.getElementById('tutUrl')?.value;
+            if(url) { tutorialUrl = url; db.ref('config/tutorialVideo').set({url}); }
+            closeModal();
+            alert('✅ Guardado!');
+        }
+        
+        function adminPlacard() {
+            const modal = document.getElementById('modal');
+            const box = document.getElementById('modalBox');
+            modal.classList.add('open');
+            box.innerHTML = `
+                <h3 style="margin-bottom:15px;">💰 Links Placard</h3>
+                <label>Link Depósito:</label>
+                <input type="text" id="depLink" class="input-field" value="${placardDeposit}">
+                <label>Link WhatsApp:</label>
+                <input type="text" id="wapLink" class="input-field" value="${placardWhatsapp}">
+                <button class="btn btn-primary" onclick="savePlacard()">💾 Guardar</button>
+                <button class="btn btn-outline" style="margin-top:8px;" onclick="closeModal()">Cancelar</button>
+            `;
+        }
+        
+        function savePlacard() {
+            const dep = document.getElementById('depLink')?.value;
+            const wap = document.getElementById('wapLink')?.value;
+            if(dep) placardDeposit = dep;
+            if(wap) placardWhatsapp = wap;
+            db.ref('config/placardLinks').set({deposit: placardDeposit, whatsapp: placardWhatsapp});
+            closeModal();
+            alert('✅ Guardado!');
+        }
+        
+        async function adminUpgrades() {
+            const modal = document.getElementById('modal');
+            const box = document.getElementById('modalBox');
+            modal.classList.add('open');
+            try {
+                const snap = await db.ref('payments/upgrades').orderByChild('status').equalTo('pending').once('value');
+                const data = snap.val();
+                let html = '<h3 style="margin-bottom:15px;">💎 Upgrades Pendentes</h3>';
+                if(data) {
+                    Object.keys(data).forEach(key => {
+                        const u = data[key];
+                        html += `<div style="background:#1e1e1e;padding:12px;border-radius:8px;margin-bottom:8px;">
+                            <p><b>Plano:</b> ${PLANS[u.plan]?.name}</p>
+                            <p><b>WhatsApp:</b> ${u.phone}</p>
+                            <p><b>Email:</b> ${u.userEmail}</p>
+                            <button class="btn btn-success btn-sm" onclick="approveUpgrade('${key}')">✅ Aprovar</button>
+                        </div>`;
+                    });
+                } else { html += '<p style="color:#b2bec3;">Nenhum pendente</p>'; }
+                html += '<button class="btn btn-outline" style="margin-top:10px;" onclick="closeModal()">Fechar</button>';
+                box.innerHTML = html;
+            } catch(e) { box.innerHTML = '<p>Erro ao carregar</p>'; }
+        }
+        
+        async function approveUpgrade(id) {
+            try {
+                const snap = await db.ref('payments/upgrades/' + id).once('value');
+                const u = snap.val();
+                await db.ref('payments/upgrades/' + id + '/status').set('approved');
+                await db.ref('users/' + u.userId + '/plan').set(u.plan);
+                alert('✅ Aprovado!');
+                adminUpgrades();
+            } catch(e) { alert('Erro'); }
+        }
+        
+        async function adminPromotions() {
+            const modal = document.getElementById('modal');
+            const box = document.getElementById('modalBox');
+            modal.classList.add('open');
+            try {
+                const snap = await db.ref('payments/promotions').orderByChild('status').equalTo('pending').once('value');
+                const data = snap.val();
+                let html = '<h3 style="margin-bottom:15px;">🚀 Promoções Pendentes</h3>';
+                if(data) {
+                    Object.keys(data).forEach(key => {
+                        const p = data[key];
+                        html += `<div style="background:#1e1e1e;padding:12px;border-radius:8px;margin-bottom:8px;">
+                            <p><b>Plataforma:</b> ${p.platformName}</p>
+                            <p><b>Nome:</b> ${p.name} | <b>Tel:</b> ${p.phone}</p>
+                            <p><b>Link:</b> ${p.link}</p>
+                            <p><b>Qtd:</b> ${p.quantity} | <b>Valor:</b> ${p.amount} MT</p>
+                            <button class="btn btn-success btn-sm" onclick="approvePromo('${key}')">✅ Aprovar</button>
+                        </div>`;
+                    });
+                } else { html += '<p style="color:#b2bec3;">Nenhuma pendente</p>'; }
+                html += '<button class="btn btn-outline" style="margin-top:10px;" onclick="closeModal()">Fechar</button>';
+                box.innerHTML = html;
+            } catch(e) { box.innerHTML = '<p>Erro ao carregar</p>'; }
+        }
+        
+        async function approvePromo(id) {
+            await db.ref('payments/promotions/' + id + '/status').set('approved');
+            alert('✅ Aprovado!');
+            adminPromotions();
+        }
+        
+        async function adminTickets() {
+            const modal = document.getElementById('modal');
+            const box = document.getElementById('modalBox');
+            modal.classList.add('open');
+            try {
+                const snap = await db.ref('support/tickets').orderByChild('status').equalTo('open').once('value');
+                const data = snap.val();
+                let html = '<h3 style="margin-bottom:15px;">🎧 Tickets Abertos</h3>';
+                if(data) {
+                    Object.keys(data).forEach(key => {
+                        const t = data[key];
+                        html += `<div style="background:#1e1e1e;padding:12px;border-radius:8px;margin-bottom:8px;">
+                            <p><b>${t.subject}</b></p>
+                            <p style="font-size:12px;">${t.message}</p>
+                            <p style="font-size:10px;">${t.userName} (${t.userEmail})</p>
+                            <button class="btn btn-success btn-sm" onclick="resolveTicket('${key}')">✅ Resolver</button>
+                        </div>`;
+                    });
+                } else { html += '<p style="color:#b2bec3;">Nenhum aberto</p>'; }
+                html += '<button class="btn btn-outline" style="margin-top:10px;" onclick="closeModal()">Fechar</button>';
+                box.innerHTML = html;
+            } catch(e) { box.innerHTML = '<p>Erro ao carregar</p>'; }
+        }
+        
+        async function resolveTicket(id) {
+            await db.ref('support/tickets/' + id + '/status').set('resolved');
+            alert('✅ Resolvido!');
+            adminTickets();
+        }
+        
+        function adminLinks() {
+            const modal = document.getElementById('modal');
+            const box = document.getElementById('modalBox');
+            modal.classList.add('open');
+            box.innerHTML = `
+                <h3 style="margin-bottom:15px;">🔗 Links de Crescimento</h3>
+                <p style="font-size:11px;color:#b2bec3;margin-bottom:10px;">Adicione links em massa (até 50.000)</p>
+                <label>Plataforma:</label>
+                <select id="linkPlat" class="input-field">${Object.keys(PLATFORMS).map(k => `<option value="${k}">${PLATFORMS[k].icon} ${PLATFORMS[k].name}</option>`).join('')}</select>
+                <label>Cole links (1 por linha):</label>
+                <textarea id="linkText" class="input-field" style="min-height:150px;font-family:monospace;font-size:11px;" placeholder="https://..."></textarea>
+                <button class="btn btn-primary" onclick="saveLinks()">💾 Salvar</button>
+                <div style="margin-top:15px;">
+                    <div id="existingLinks" style="background:#1e1e1e;border-radius:8px;padding:10px;max-height:200px;overflow-y:auto;"><p style="color:#b2bec3;">Clique em Carregar</p></div>
+                    <button class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="loadLinks()">📋 Carregar Links</button>
+                </div>
+                <button class="btn btn-outline" style="margin-top:10px;width:100%;" onclick="closeModal()">Fechar</button>
+            `;
+        }
+        
+        async function saveLinks() {
+            const platform = document.getElementById('linkPlat')?.value;
+            const text = document.getElementById('linkText')?.value;
+            if(!platform || !text) { alert('Preencha!'); return; }
+            const links = text.split('\n').map(l => l.trim()).filter(l => l.startsWith('http'));
+            if(links.length === 0) { alert('Nenhum link válido!'); return; }
+            try {
+                await db.ref('growthLinks/' + platform).set({links, count: links.length, updatedAt: Date.now()});
+                alert('✅ ' + links.length + ' links salvos!');
+                loadLinks();
+            } catch(e) { alert('Erro'); }
+        }
+        
+        async function loadLinks() {
+            const platform = document.getElementById('linkPlat')?.value;
+            const container = document.getElementById('existingLinks');
+            if(!platform || !container) return;
+            try {
+                const snap = await db.ref('growthLinks/' + platform).once('value');
+                const data = snap.val();
+                if(data?.links) {
+                    let html = `<p style="color:#ffd700;margin-bottom:8px;">Total: ${data.count} links</p>`;
+                    data.links.slice(0,50).forEach(link => {
+                        html += `<div style="padding:6px;background:#141414;border-radius:4px;margin-bottom:4px;font-size:10px;word-break:break-all;">${link}</div>`;
+                    });
+                    if(data.links.length > 50) html += `<p style="color:#b2bec3;text-align:center;">...e mais ${data.links.length-50} links</p>`;
+                    container.innerHTML = html;
+                } else { container.innerHTML = '<p style="color:#b2bec3;">Nenhum link</p>'; }
+            } catch(e) { container.innerHTML = '<p style="color:#ff4757;">Erro</p>'; }
+        }
+        
+        async function adminStats() {
+            const modal = document.getElementById('modal');
+            const box = document.getElementById('modalBox');
+            modal.classList.add('open');
+            try {
+                const usersSnap = await db.ref('users').once('value');
+                const postsSnap = await db.ref('posts').once('value');
+                box.innerHTML = `<h3 style="margin-bottom:15px;">📊 Estatísticas</h3><div style="background:#1e1e1e;padding:15px;border-radius:10px;"><p>👥 <b>Usuários:</b> ${usersSnap.numChildren()}</p><p>📝 <b>Publicações:</b> ${postsSnap.numChildren()}</p></div><button class="btn btn-outline" style="margin-top:10px;" onclick="closeModal()">Fechar</button>`;
+            } catch(e) { box.innerHTML = '<p>Erro</p>'; }
+        }
+        
+        async function adminPassword() {
+            const pass = prompt('Nova senha (mín 6 caracteres):');
+            if(pass?.length >= 6) {
+                await db.ref('config/adminPassword').set(pass);
+                alert('✅ Alterada!');
+            }
+        }
+        
+        async function doLogout() {
+            await auth.signOut();
+            currentUser = null;
+            userPlan = 'free';
+            renderLogin();
+        }
+        
+        // ==================== INIT ====================
+        async function init() {
+            // Load config
+            try {
+                const tc = await db.ref('config/tutorialVideo').once('value');
+                if(tc.val()) tutorialUrl = tc.val().url || tutorialUrl;
+                const pc = await db.ref('config/placardLinks').once('value');
+                if(pc.val()) {
+                    placardDeposit = pc.val().deposit || placardDeposit;
+                    placardWhatsapp = pc.val().whatsapp || placardWhatsapp;
+                }
+                const ap = await db.ref('config/adminPassword').once('value');
+                if(!ap.exists()) await db.ref('config/adminPassword').set('clipcash2024');
+            } catch(e) {}
+            
+            // Check auth state
+            auth.onAuthStateChanged(async (user) => {
+                if(user) {
+                    currentUser = user;
+                    try {
+                        const snap = await db.ref('users/' + user.uid).once('value');
+                        if(snap.exists()) {
+                            const data = snap.val();
+                            userPlan = data.plan || 'free';
+                            userStats = data.stats || userStats;
+                        }
+                    } catch(e) {}
+                    renderApp();
+                } else {
+                    renderLogin();
+                }
+            });
+        }
+        
+        // Start immediately
+        init();
+        
+        // Event listeners
+        document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if(e.target === this) closeModal();
+        });
     </script>
 </body>
 </html>
